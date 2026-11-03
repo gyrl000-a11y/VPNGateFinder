@@ -445,7 +445,8 @@ struct BestServerCard: View {
             Text(server.flag).font(.system(size: 40))
             VStack(alignment: .leading, spacing: 4) {
                 Text(server.countryNameKo).font(.title3.bold()).lineLimit(2)
-                Text("\(server.ip):\(server.port) · \(server.proto.uppercased())")
+                // verbatim: 포트 번호에 천 단위 쉼표가 붙지 않게
+                Text(verbatim: "\(server.ip):\(server.port) · \(server.proto.uppercased())")
                     .font(.subheadline.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
