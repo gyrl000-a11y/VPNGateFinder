@@ -55,6 +55,14 @@ jobs:
           xcrun simctl io "$UDID" screenshot out/1-after-15s.png
           sleep 25
           xcrun simctl io "$UDID" screenshot out/2-after-40s.png
+          # '덜 붐비고 빠른 순' + TCP 끔 + 전체 국가로 다시 실행
+          xcrun simctl terminate "$UDID" com.hyuk.vpngatefinder || true
+          xcrun simctl spawn "$UDID" defaults write com.hyuk.vpngatefinder pickMode roomy
+          xcrun simctl spawn "$UDID" defaults write com.hyuk.vpngatefinder tcpOnly -bool false
+          xcrun simctl spawn "$UDID" defaults write com.hyuk.vpngatefinder country ALL
+          xcrun simctl launch "$UDID" com.hyuk.vpngatefinder
+          sleep 50
+          xcrun simctl io "$UDID" screenshot out/3-roomy.png
           # 앱 기록 중 오류 관련 줄
           xcrun simctl spawn "$UDID" log show --last 2m --predicate 'process == "VPNGateFinder"' --style compact 2>/dev/null \
             | grep -iE "error|fail|ATS|transport" | head -n 40 > out/app-log.txt || true
