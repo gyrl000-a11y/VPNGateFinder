@@ -14,23 +14,57 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Sign with macOS shortcuts tool
-        id: sign
-        continue-on-error: true
+      - name: Sign shortcut
         run: |
           mkdir -p out
-          cp shortcuts/LiveContainer-Refresh.plist "out/unsigned.shortcut"
-          shortcuts sign --mode anyone --input "out/unsigned.shortcut" \
-            --output "out/LiveContainer-Refresh.shortcut" 2>&1 | tee out/sign.log
-          test -s "out/LiveContainer-Refresh.shortcut"
-          head -c 4 "out/LiveContainer-Refresh.shortcut" | xxd
+          OUT="out/LiveContainer-Refresh.shortcut"
+          cp shortcuts/LiveContainer-Refresh.plist out/unsigned.shortcut
 
-      - name: Show sign log on failure
-        if: steps.sign.outcome != 'success'
-        run: cat out/sign.log || true
+          echo "== 1) macOS shortcuts sign ==" | tee out/sign.log
+          if shortcuts sign --mode anyone --input out/unsigned.shortcut --output "$OUT" >> out/sign.log 2>&1 \
+             && [ "$(head -c 4 "$OUT" 2>/dev/null)" = "AEA1" ]; then
+            echo "macOS signing OK" | tee -a out/sign.log
+          else
+            echo "macOS signing failed, trying HubSign" | tee -a out/sign.log
+            rm -f "$OUT"
+            plutil -convert xml1 -o out/unsigned.xml out/unsigned.shortcut
+            python3 - <<'EOF'
+          import json
+          xml = open("out/unsigned.xml").read()
+          json.dump({"shortcutName": "LiveContainer-Refresh", "shortcut": xml}, open("out/payload.json", "w"))
+          EOF
+            echo "== 2) HubSign ==" >> out/sign.log
+            curl -sS -X POST "https://hubsign.routinehub.services/sign" \
+              -H "Content-Type: application/json" \
+              -H "User-Agent: VPNGateFinder-ci" \
+              --data @out/payload.json -o "$OUT" \
+              -D out/headers.txt -w "HTTP %{http_code}\n" >> out/sign.log 2>&1 || true
+            cat out/headers.txt >> out/sign.log 2>/dev/null || true
+          fi
+
+          if [ "$(head -c 4 "$OUT" 2>/dev/null)" = "AEA1" ]; then
+            echo "SIGNED $(wc -c < "$OUT") bytes" | tee -a out/sign.log
+            echo "SIGNED=1" >> $GITHUB_ENV
+          else
+            echo "NOT SIGNED" | tee -a out/sign.log
+            head -c 400 "$OUT" >> out/sign.log 2>/dev/null || true
+          fi
+
+      - name: Save sign log to branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p logdir && cp out/sign.log logdir/ 2>/dev/null || echo "no log" > logdir/sign.log
+          cd logdir
+          git init -q -b shortcut-log
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -q -m "sign log ${GITHUB_SHA::7}"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" shortcut-log
 
       - name: Publish signed shortcut
-        if: steps.sign.outcome == 'success'
+        if: env.SIGNED == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
