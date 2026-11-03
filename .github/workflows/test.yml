@@ -1,0 +1,72 @@
+name: Test on Simulator
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Probe real VPN Gate servers
+        run: |
+          mkdir -p out
+          python3 tools/probe_test.py 2>&1 | tee out/probe.txt
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Pick an iPhone simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)['devices']
+          c=[(rt,x) for rt,l in d.items() if 'iOS' in rt for x in l if x['name'].startswith('iPhone')]
+          c.sort(key=lambda p:p[0])
+          print(c[-1][1]['udid'])")
+          echo "UDID=$UDID" >> $GITHUB_ENV
+          xcrun simctl list devices | grep "$UDID" | tee out/simulator.txt
+
+      - name: Build for simulator
+        run: |
+          set -o pipefail
+          xcodebuild -project VPNGateFinder.xcodeproj -scheme VPNGateFinder \
+            -configuration Debug -sdk iphonesimulator \
+            -destination "id=$UDID" -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | tail -n 30
+
+      - name: Run app and take screenshots
+        run: |
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time "9:41" || true
+          xcrun simctl install "$UDID" build/Build/Products/Debug-iphonesimulator/VPNGateFinder.app
+          xcrun simctl launch "$UDID" com.hyuk.vpngatefinder
+          sleep 15
+          xcrun simctl io "$UDID" screenshot out/1-after-15s.png
+          sleep 25
+          xcrun simctl io "$UDID" screenshot out/2-after-40s.png
+          # 앱 기록 중 오류 관련 줄
+          xcrun simctl spawn "$UDID" log show --last 2m --predicate 'process == "VPNGateFinder"' --style compact 2>/dev/null \
+            | grep -iE "error|fail|ATS|transport" | head -n 40 > out/app-log.txt || true
+
+      - name: Save results to test-results branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd out
+          git init -q -b test-results
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Test results for ${GITHUB_SHA::7}"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" test-results
