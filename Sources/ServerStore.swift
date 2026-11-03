@@ -14,11 +14,11 @@ struct ImportResult {
     var missingFiles = 0
 }
 
-struct IPInfo: Decodable, Equatable {
-    let ip: String
-    let country: String?
-    let city: String?
-    let org: String?
+struct IPInfo: Equatable {
+    var ip: String
+    var country: String?   // 두 글자 국가 코드 (JP 등)
+    var city: String?
+    var org: String?
 }
 
 @MainActor
@@ -358,18 +358,12 @@ final class ServerStore: ObservableObject {
         guard !ipChecking else { return }
         ipChecking = true
         defer { ipChecking = false }
-        do {
-            var request = URLRequest(url: URL(string: "https://ipinfo.io/json")!,
-                                     cachePolicy: .reloadIgnoringLocalCacheData,
-                                     timeoutInterval: 10)
-            request.setValue("application/json", forHTTPHeaderField: "Accept")
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let info = try JSONDecoder().decode(IPInfo.self, from: data)
-            if info != ipInfo { speedMbps = nil }   // 연결이 바뀌면 이전 속도는 지움
+        if let info = await IPLookup.lookup() {
+            if info.ip != ipInfo?.ip { speedMbps = nil }   // 연결이 바뀌면 이전 속도는 지움
             ipInfo = info
             ipError = nil
-        } catch {
-            ipError = "IP를 확인하지 못했어요. 잠시 뒤 다시 눌러 주세요."
+        } else {
+            ipError = "IP를 확인하지 못했어요. 인터넷이 연결돼 있는지 확인하고 다시 눌러 주세요."
         }
         refreshVPNState()
         // 지금 IP가 목록의 서버와 같으면 '연결이 됐던 서버'로 기억

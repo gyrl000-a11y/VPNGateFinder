@@ -144,11 +144,12 @@ struct ContentView: View {
                 }
             } else {
                 if store.vpnActive {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Label("지금 VPN이 켜져 있어요", systemImage: "lock.shield")
-                            .foregroundStyle(.blue)
-                        Text("이 상태에서 잰 응답 시간은 VPN을 거친 값이라 실제와 다를 수 있어요. 정확하게 고르려면 OpenVPN에서 연결을 끊고 새로고침하세요.")
-                            .font(.footnote)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Label("VPN 연결 중", systemImage: "lock.shield.fill")
+                            .font(.subheadline.bold())
+                            .foregroundStyle(.green)
+                        Text("새 서버를 고를 땐 OpenVPN을 끄고 새로고침하면 더 정확해요.")
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
