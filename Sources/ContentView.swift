@@ -183,7 +183,10 @@ struct ContentView: View {
             } else if store.isTesting {
                 HStack(spacing: 10) {
                     ProgressView()
-                    Text("후보 서버에 직접 물어보는 중…").foregroundStyle(.secondary)
+                    Text(store.pickRound > 1
+                         ? "응답이 없어 다음 후보 확인 중… (\(store.pickRound)/\(store.pickRounds))"
+                         : "후보 서버에 직접 물어보는 중…")
+                        .foregroundStyle(.secondary)
                 }
             } else {
                 if store.vpnActive {
@@ -260,6 +263,13 @@ struct ContentView: View {
                               systemImage: "checkmark.shield.fill")
                             .font(.caption.bold())
                             .foregroundStyle(.green)
+                    }
+                    if let v6 = info.ipv6, let v6Country = info.ipv6Country,
+                       v6Country != info.country {
+                        Label("IPv6 연결(\(VPNServer.flag(for: v6Country)) \(v6))은 VPN을 거치지 않고 있어요. 일부 앱·사이트는 이쪽으로 접속할 수 있어요.",
+                              systemImage: "exclamationmark.triangle")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
                     }
                 }
             }

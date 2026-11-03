@@ -19,6 +19,9 @@ struct IPInfo: Equatable {
     var country: String?   // 두 글자 국가 코드 (JP 등)
     var city: String?
     var org: String?
+    /// IPv4와 다른 IPv6 주소로도 나가고 있으면 그 주소와 나라 (VPN을 안 거칠 수 있음)
+    var ipv6: String?
+    var ipv6Country: String?
 }
 
 /// 자동 선택 기준
@@ -65,6 +68,9 @@ final class ServerStore: ObservableObject {
     private static let poolRefreshInterval: TimeInterval = 25 * 60
     @Published private(set) var isLoading = false
     @Published private(set) var isTesting = false
+    /// 후보 묶음 몇 번째를 확인 중인지
+    @Published private(set) var pickRound = 0
+    @Published private(set) var pickRounds = 0
     @Published private(set) var lastUpdated: Date?
     @Published private(set) var usingCachedList = false
     @Published var errorMessage: String?
@@ -254,32 +260,63 @@ final class ServerStore: ObservableObject {
             .sorted { $0.score > $1.score }
     }
 
-    /// 자동 선택 때 확인할 후보 (제외·건너뛴 서버는 빼고)
-    func candidates(country: String, tcpOnly: Bool, includeImported: Bool,
-                    skip: Set<String> = [], gateCount: Int = 10) -> [VPNServer] {
+    /// 한 번에 확인할 후보 수와 최대 반복 횟수
+    static let batchSize = 16
+    static let maxRounds = 4
+
+    /// 자동 선택 때 확인할 후보 묶음들 (제외·건너뛴 서버는 빼고).
+    /// 첫 묶음에서 응답하는 서버가 없으면 다음 묶음을 확인함
+    func candidateBatches(country: String, tcpOnly: Bool, includeImported: Bool,
+                          skip: Set<String> = []) -> [[VPNServer]] {
         let usable: (VPNServer) -> Bool = { [self] s in !isExcluded(s) && !skip.contains(s.id) }
         let mine = imported.filter { (!tcpOnly || $0.proto == "tcp") && usable($0) }
-        if country == Self.myFiles { return mine }
+        if country == Self.myFiles { return mine.isEmpty ? [] : [mine] }
         let gate = filtered(country: country, tcpOnly: tcpOnly).filter(usable)   // 점수순
 
-        var list: [VPNServer]
+        var ordered: [VPNServer] = []
+        var seen = Set<String>()
+        func add<S: Sequence>(_ list: S) where S.Element == VPNServer {
+            for s in list where !seen.contains(s.id) {
+                seen.insert(s.id)
+                ordered.append(s)
+            }
+        }
+
+        // 최근에 연결이 됐던 서버는 항상 먼저
+        add(gate.filter { hasWorked($0) })
+
         switch PickMode.current {
         case .fastest:
-            list = Array(gate.prefix(gateCount))
+            add(gate.prefix(10))
+            add(gate)
         case .roomy:
-            // 속도 ÷ 접속자 수가 큰 서버 위주로, 점수 상위 몇 개도 같이 봄
-            let roomy = gate.filter { $0.speedBps > 0 }
+            // 공식 목록 서버는 지금 살아 있을 확률이 높아서 몇 개는 꼭 넣음
+            let officialRoomy = gate.filter { $0.source == .vpnGate && $0.speedBps > 0 }
                 .sorted { $0.roomScore > $1.roomScore }
-                .prefix(gateCount + 4)
-            list = Array(roomy)
-            let picked = Set(list.map(\.id))
-            list += gate.filter { !picked.contains($0.id) }.prefix(4)
+            add(officialRoomy.prefix(4))
+            // 그다음 속도 ÷ 접속자 순. 확장 목록 서버는 기록이 오래됐을 수 있어 조금 깎음
+            func trust(_ s: VPNServer) -> Double {
+                switch s.source {
+                case .vpnGate: return 1.0
+                case .pool: return s.proto == "tcp" ? 0.7 : 0.4
+                case .imported: return 0.5
+                }
+            }
+            add(gate.filter { $0.speedBps > 0 }
+                .sorted { $0.roomScore * trust($0) > $1.roomScore * trust($1) })
+            add(gate)
         }
-        // 위 후보 밖이라도 최근에 연결이 됐던 서버는 후보에 넣음
-        let ids = Set(list.map(\.id))
-        list += gate.filter { hasWorked($0) && !ids.contains($0.id) }
-        if includeImported { list += mine }
-        return list
+
+        var batches: [[VPNServer]] = []
+        var start = 0
+        while start < ordered.count && batches.count < Self.maxRounds {
+            batches.append(Array(ordered[start..<min(start + Self.batchSize, ordered.count)]))
+            start += Self.batchSize
+        }
+        if includeImported && !mine.isEmpty {
+            if batches.isEmpty { batches = [mine] } else { batches[0] += mine }
+        }
+        return batches
     }
 
     // MARK: - 받아오기와 고르기
@@ -321,12 +358,12 @@ final class ServerStore: ObservableObject {
     func pickBest(country: String, tcpOnly: Bool, includeImported: Bool, skipCurrent: Bool = false) async {
         if skipCurrent, let current = best { sessionSkip.insert(current.id) }
 
-        var list = candidates(country: country, tcpOnly: tcpOnly,
-                              includeImported: includeImported, skip: sessionSkip)
-        if list.isEmpty && !sessionSkip.isEmpty {
+        var batches = candidateBatches(country: country, tcpOnly: tcpOnly,
+                                       includeImported: includeImported, skip: sessionSkip)
+        if batches.isEmpty && !sessionSkip.isEmpty {
             // 한 바퀴 다 돌았으면 처음부터 다시
             sessionSkip.removeAll()
-            list = candidates(country: country, tcpOnly: tcpOnly, includeImported: includeImported)
+            batches = candidateBatches(country: country, tcpOnly: tcpOnly, includeImported: includeImported)
         }
 
         // 고르는 도중에 국가를 바꾸는 등 새로 고르기가 시작되면 이전 결과는 버림
@@ -335,35 +372,46 @@ final class ServerStore: ObservableObject {
 
         best = nil
         bestFileURL = nil
-        guard !list.isEmpty else { isTesting = false; return }
+        guard !batches.isEmpty else { isTesting = false; return }
 
         isTesting = true
+        pickRound = 0
+        pickRounds = batches.count
         defer { if generation == pickGeneration { isTesting = false } }
 
-        // 확장 목록 서버는 설정 파일부터 받아야 포트·방식을 알 수 있음
-        list = await resolveAll(list)
-        guard generation == pickGeneration else { return }
+        var reachable: [(VPNServer, ProbeResult)] = []
+        for batch in batches {
+            pickRound += 1
+            // 확장 목록 서버는 설정 파일부터 받아야 포트·방식을 알 수 있음
+            let list = await resolveAll(batch)
+            guard generation == pickGeneration else { return }
+            for s in batch where !list.contains(where: { $0.id == s.id }) {
+                measured[s.id] = .some(nil)   // 설정 파일을 못 받음
+            }
 
-        var results: [String: ProbeResult?] = [:]
-        await withTaskGroup(of: (String, ProbeResult?).self) { group in
-            for server in list {
-                group.addTask {
-                    let result = await Probe.check(server)
-                    return (server.id, result)
+            var results: [String: ProbeResult?] = [:]
+            await withTaskGroup(of: (String, ProbeResult?).self) { group in
+                for server in list {
+                    group.addTask {
+                        let result = await Probe.check(server)
+                        return (server.id, result)
+                    }
+                }
+                for await (id, result) in group {
+                    results[id] = result
                 }
             }
-            for await (id, result) in group {
-                results[id] = result
+            for server in list {
+                measured[server.id] = results[server.id] ?? nil
             }
-        }
-        for server in list {
-            measured[server.id] = results[server.id] ?? nil
-        }
-        guard generation == pickGeneration else { return }
+            guard generation == pickGeneration else { return }
 
-        let reachable = list.compactMap { s -> (VPNServer, ProbeResult)? in
-            guard let r = results[s.id] ?? nil else { return nil }
-            return (s, r)
+            reachable = list.compactMap { s -> (VPNServer, ProbeResult)? in
+                guard let r = results[s.id] ?? nil else { return nil }
+                return (s, r)
+            }
+            // 응답한 서버가 있으면 이 묶음 안에서 고름
+            if !reachable.isEmpty { break }
         }
 
         let sorted: [(VPNServer, ProbeResult)]

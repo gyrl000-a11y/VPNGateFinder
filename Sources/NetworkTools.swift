@@ -21,7 +21,17 @@ enum NetworkState {
 /// 여러 곳을 차례로 물어봄
 enum IPLookup {
     static func lookup() async -> IPInfo? {
-        if var info = await cloudflareTrace() {
+        // VPN Gate는 IPv4만 쓰므로 IPv4 주소로 먼저 물어봄 (5G 같은 IPv6 망에서도 VPN 경로가 보이게)
+        async let v6 = cloudflareTrace("https://[2606:4700:4700::1111]/cdn-cgi/trace")
+        var found = await cloudflareTrace("https://1.1.1.1/cdn-cgi/trace")
+        if found == nil { found = await cloudflareTrace("https://www.cloudflare.com/cdn-cgi/trace") }
+        let ipv6 = await v6
+
+        if var info = found {
+            if let ipv6, ipv6.ip != info.ip, ipv6.ip.contains(":") {
+                info.ipv6 = ipv6.ip
+                info.ipv6Country = ipv6.country
+            }
             // 도시·통신사 정보는 있으면 덧붙이고, 실패해도 그대로 씀
             if let extra = await jsonLookup(urls: ["https://ipinfo.io/json"], timeout: 5),
                extra.ip == info.ip {
@@ -52,8 +62,8 @@ enum IPLookup {
     }
 
     /// Cloudflare의 진단 주소. "ip=1.2.3.4", "loc=JP" 같은 줄로 답함
-    private static func cloudflareTrace() async -> IPInfo? {
-        guard let data = await fetch("https://www.cloudflare.com/cdn-cgi/trace", timeout: 8),
+    private static func cloudflareTrace(_ url: String) async -> IPInfo? {
+        guard let data = await fetch(url, timeout: 6),
               let text = String(data: data, encoding: .utf8) else { return nil }
         var fields: [String: String] = [:]
         for line in text.split(whereSeparator: \.isNewline) {
