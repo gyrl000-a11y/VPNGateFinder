@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -55,3 +57,14 @@ jobs:
         with:
           name: VPNGateFinder-ipa
           path: VPNGateFinder.ipa
+
+      # 항상 같은 주소로 최신 IPA를 받을 수 있게 Releases의 'latest'를 새로 올림
+      - name: Publish to Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest VPNGateFinder.ipa \
+            --title "최신 빌드 ($(date -u -v+9H '+%Y-%m-%d %H:%M') KST)" \
+            --notes "커밋 ${GITHUB_SHA::7} 에서 빌드한 서명 없는 IPA입니다. Sideloadly로 설치하세요." \
+            --latest

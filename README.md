@@ -43,8 +43,9 @@ Mac 대신 GitHub가 제공하는 클라우드 Mac이 빌드를 해 줍니다.
    - 내용 칸에 압축 파일 안 `.github/workflows/build.yml` 내용을 메모장으로 열어 복사·붙여넣기
    - **Commit changes**
 5. 위쪽 **Actions** 탭 → 왼쪽 **Build IPA** → 이미 돌고 있으면 기다리고, 없으면 **Run workflow** 클릭
-6. 5~10분 뒤 초록색 체크가 뜨면 그 실행을 눌러 맨 아래 **Artifacts**의 `VPNGateFinder-ipa`를 다운로드
-7. 받은 zip을 풀면 `VPNGateFinder.ipa`가 나옵니다.
+6. 몇 분 뒤 초록색 체크가 뜨면 IPA가 저장소의 **Releases**에 자동으로 올라갑니다. 항상 아래 주소로 최신 IPA를 바로 받을 수 있어요.
+   - https://github.com/gyrl000-a11y/VPNGateFinder/releases/latest/download/VPNGateFinder.ipa
+7. (예비 방법) 실행 화면 맨 아래 **Artifacts**의 `VPNGateFinder-ipa`를 받아 zip을 풀어도 같은 파일이 나옵니다.
 
 빨간 X가 뜨면 실행을 눌러 **Show errors only** 단계를 펼쳐서, 거기 나온 오류 줄을 복사해 저한테 보내 주세요. 전체 기록은 Artifacts의 `build-log`로도 받을 수 있어요.
 
