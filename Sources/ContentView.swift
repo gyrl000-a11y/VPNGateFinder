@@ -8,6 +8,8 @@ struct ContentView: View {
     @AppStorage("tcpOnly") private var tcpOnly = true
     @AppStorage("includeImported") private var includeImported = true
     @AppStorage("sortOrder") private var sortOrder = "score"
+    @AppStorage("pickMode") private var pickMode = PickMode.fastest.rawValue
+    @AppStorage("usePool") private var usePool = true
     @State private var didStart = false
     @State private var showImporter = false
     @State private var importMessage: String?
@@ -42,6 +44,13 @@ struct ContentView: View {
             .onChange(of: country) { _ in repick() }
             .onChange(of: tcpOnly) { _ in repick() }
             .onChange(of: includeImported) { _ in repick() }
+            .onChange(of: pickMode) { _ in repick() }
+            .onChange(of: usePool) { _ in
+                Task {
+                    await store.usePoolChanged()
+                    await store.pickBest(country: country, tcpOnly: tcpOnly, includeImported: includeImported)
+                }
+            }
             .onChange(of: scenePhase) { phase in
                 guard phase == .active else { return }
                 store.refreshVPNState()
@@ -66,6 +75,17 @@ struct ContentView: View {
     }
 
     private var busy: Bool { store.isLoading || store.isTesting }
+
+    private var poolStatus: String {
+        if !usePool { return "공식 목록(약 100개)만 써요" }
+        if store.poolLoading { return "확장 목록 받는 중…" }
+        if let error = store.poolError { return error }
+        if store.poolCount > 0 {
+            let when = store.poolUpdated.map { " · \($0.formatted(date: .omitted, time: .shortened)) 기준" } ?? ""
+            return "최근 확인된 서버 \(store.poolCount)개 추가\(when)"
+        }
+        return "VPN Gate 누적 미러에서 서버를 더 받아 와요"
+    }
 
     private func refresh() async {
         await store.refreshAndPick(country: country, tcpOnly: tcpOnly, includeImported: includeImported)
@@ -115,6 +135,29 @@ struct ContentView: View {
                 }
             }
             Toggle("TCP 서버만", isOn: $tcpOnly)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("자동 선택 기준")
+                Picker("자동 선택 기준", selection: $pickMode) {
+                    ForEach(PickMode.allCases) { mode in
+                        Text(mode.label).tag(mode.rawValue)
+                    }
+                }
+                .pickerStyle(.segmented)
+                Text(pickMode == PickMode.roomy.rawValue
+                     ? "응답하는 서버 중 VPN Gate가 알려 준 속도에 비해 접속자가 적은 서버를 먼저 골라요. 실제 다운로드가 빠른 경우가 많아요."
+                     : "내 폰에서 응답이 가장 빨리 오는 서버를 골라요. 사람이 몰린 서버가 뽑힐 수 있어요.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.vertical, 2)
+            Toggle(isOn: $usePool) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("확장 목록도 쓰기")
+                    Text(poolStatus)
+                        .font(.caption)
+                        .foregroundStyle(store.poolError == nil ? Color.secondary : Color.orange)
+                }
+            }
             if !store.imported.isEmpty && country != ServerStore.myFiles {
                 Toggle("내 파일도 같이 비교", isOn: $includeImported)
             }
@@ -125,7 +168,7 @@ struct ContentView: View {
                 }
             }
         } footer: {
-            Text("TCP는 대부분의 와이파이에서 잘 통하고, UDP는 더 빠를 때가 많지만 막히는 곳도 있어요.")
+            Text("TCP는 대부분의 와이파이에서 잘 통하고, UDP는 더 빠를 때가 많지만 막히는 곳도 있어요. 확장 목록은 최근 며칠 동안 VPN Gate에 나왔던 서버를 모아 둔 공개 미러예요(30분마다 갱신, 받을 때 몇 MB 사용).")
         }
     }
 
@@ -335,7 +378,7 @@ struct ContentView: View {
         }
         .contextMenu {
             Button {
-                store.choose(server)
+                Task { await store.choose(server) }
             } label: {
                 Label("이 서버로 정하기 (맨 위에 올리기)", systemImage: "arrow.up.to.line")
             }
@@ -484,7 +527,8 @@ struct ServerRow: View {
         if server.isImported {
             return "\(server.ip) · \(server.proto.uppercased())"
         }
-        return "\(server.countryNameKo) · \(String(format: "%.0f", server.speedMbps)) Mbps · \(server.proto.uppercased())"
+        let base = "\(server.countryNameKo) · \(String(format: "%.0f", server.speedMbps)) Mbps · \(server.sessions)명 · \(server.proto.uppercased())"
+        return server.isPool ? base + " · 확장" : base
     }
 
     @ViewBuilder

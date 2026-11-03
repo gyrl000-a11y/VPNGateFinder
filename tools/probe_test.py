@@ -104,6 +104,63 @@ def main():
     print()
     print(f"점수 상위 {len(top)}개 중 OpenVPN 직접 응답 {ok_hs}개, TCP 포트 열림 {ok_tcp}개")
     print("(GitHub의 미국 서버에서 잰 값이라 한국에서 재면 ms는 달라요)")
+    print()
+    pool_check()
+
+
+POOL_BASE = "https://raw.githubusercontent.com/GeorgeXie2333/vpngate-list-mirror/main/"
+
+
+def pool_check():
+    """앱의 PoolAPI와 같은 기준으로 확장 목록을 거르고, '덜 붐비는' 상위 서버에 실제로 인사해 봄"""
+    import json
+    from datetime import datetime, timezone
+
+    def ts(s):
+        return datetime.fromisoformat(s.replace("Z", "+00:00")) if s else None
+
+    with urllib.request.urlopen(POOL_BASE + "pool/servers.json", timeout=60) as r:
+        data = json.load(r)
+    now = datetime.now(timezone.utc)
+    kept = []
+    for e in data["servers"]:
+        if e.get("present_in_latest_source") or not (e.get("config") or {}).get("path"):
+            continue
+        if e.get("probe_reason") == "tcp":
+            p = e.get("tcp_probe") or {}
+            ok = ts(p.get("last_success_at"))
+            if p.get("status") == "unreachable" or not ok or (now - ok).total_seconds() > 24 * 3600:
+                continue
+        else:
+            seen = ts(e.get("last_seen_at"))
+            if not seen or (now - seen).total_seconds() > 48 * 3600:
+                continue
+        kept.append(e)
+    print(f"확장 목록: 전체 {len(data['servers'])}개 중 앱이 쓰는 서버 {len(kept)}개")
+
+    def room(e):
+        return (e.get("speed_bps") or 0) / 1e6 / ((e.get("num_vpn_sessions") or 0) + 1)
+
+    top = sorted(kept, key=room, reverse=True)[:12]
+    ok = 0
+    for e in top:
+        with urllib.request.urlopen(POOL_BASE + e["config"]["path"], timeout=30) as r:
+            cfg = base64.b64decode(json.load(r)["openvpn_config_base64"]).decode("utf-8", "replace")
+        proto, port = "udp", 1194
+        for raw in cfg.splitlines():
+            parts = raw.strip().split()
+            if not parts or parts[0].startswith(("#", ";")):
+                continue
+            if parts[0] == "proto" and len(parts) > 1:
+                proto = "tcp" if parts[1].startswith("tcp") else "udp"
+            elif parts[0] == "remote" and len(parts) > 2 and parts[2].isdigit():
+                port = int(parts[2])
+        hs = handshake(e["ip"], port, proto == "tcp")
+        ok += hs is not None
+        print(f"{e.get('country_code',''):4} {e['ip']:16} {proto:4} {port:<6} "
+              f"{room(e):6.1f} Mbps/명 {e.get('num_vpn_sessions',0):4}명 "
+              f"{(str(hs) + 'ms') if hs is not None else '응답 없음'}")
+    print(f"덜 붐비는 상위 {len(top)}개 중 OpenVPN 직접 응답 {ok}개")
 
 
 if __name__ == "__main__":

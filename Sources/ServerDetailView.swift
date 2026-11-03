@@ -7,6 +7,7 @@ struct ServerDetailView: View {
     @State private var fileURL: URL?
     @State private var isMeasuring = false
     @State private var confirmDelete = false
+    @State private var configFailed = false
 
     var body: some View {
         List {
@@ -14,10 +15,22 @@ struct ServerDetailView: View {
                 BestServerCard(server: server, result: store.measured[server.id] ?? nil,
                                worked: store.hasWorked(server))
                 Button {
-                    store.choose(server)
-                    dismiss()
+                    Task {
+                        await store.choose(server)
+                        dismiss()
+                    }
                 } label: {
                     Label("이 서버로 정하기 (첫 화면 맨 위로)", systemImage: "arrow.up.to.line")
+                }
+                if configFailed {
+                    Text("이 서버의 설정 파일을 받지 못했어요. 확장 목록 서버는 이미 사라졌을 수 있어요.")
+                        .font(.footnote)
+                        .foregroundStyle(.orange)
+                } else if fileURL == nil {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                        Text("설정 파일 준비 중…").font(.footnote).foregroundStyle(.secondary)
+                    }
                 }
                 if let fileURL {
                     ShareLink(item: fileURL) {
@@ -79,7 +92,15 @@ struct ServerDetailView: View {
                     row("호스트", server.hostName)
                     row("점수", "\(server.score)")
                     row("VPN Gate 측정 핑", server.reportedPing.map { "\($0)ms" } ?? "-")
-                    row("가동 시간", server.uptimeText)
+                    if server.isPool {
+                        row("출처", "확장 목록 (VPN Gate 누적 미러)")
+                        row("마지막 확인", server.lastSeen.map {
+                            $0.formatted(date: .abbreviated, time: .shortened)
+                        } ?? "-")
+                    } else {
+                        row("가동 시간", server.uptimeText)
+                    }
+                    row("접속자", "\(server.sessions)명")
                     row("운영자", server.operatorName.isEmpty ? "-" : server.operatorName)
                 }
             }
@@ -93,7 +114,13 @@ struct ServerDetailView: View {
         .navigationTitle(server.countryNameKo)
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            fileURL = try? store.exportFile(for: server)
+            // 확장 목록 서버는 여기서 설정 파일을 받아 옴
+            if let ready = await store.resolve(server) {
+                fileURL = try? store.exportFile(for: ready)
+                configFailed = fileURL == nil
+            } else {
+                configFailed = true
+            }
         }
         .confirmationDialog("이 설정 파일을 삭제할까요?", isPresented: $confirmDelete, titleVisibility: .visible) {
             Button("삭제", role: .destructive) {

@@ -1,8 +1,8 @@
 import Foundation
 
-/// 서버 한 대(VPN Gate 목록에서 왔거나, 사용자가 가져온 .ovpn 파일)
+/// 서버 한 대(VPN Gate 공식 목록, VPN Gate 누적 미러, 또는 사용자가 가져온 .ovpn 파일)
 struct VPNServer: Identifiable, Hashable {
-    enum Source: Hashable { case vpnGate, imported }
+    enum Source: Hashable { case vpnGate, pool, imported }
 
     let id: String
     let hostName: String
@@ -15,17 +15,25 @@ struct VPNServer: Identifiable, Hashable {
     let sessions: Int
     let uptimeMs: Int
     let operatorName: String
-    let configText: String      // .ovpn 내용
-    let proto: String           // "tcp" / "udp"
-    let port: Int
+    var configText: String      // .ovpn 내용 (누적 미러 서버는 고를 때 받아 옴)
+    var proto: String           // "tcp" / "udp"
+    var port: Int
 
     var source: Source = .vpnGate
     var needsAuth = false       // OpenVPN Connect에서 아이디·비밀번호를 물어봄
     var missingFiles = false    // ca.crt 같은 별도 파일을 가리키고 있어 그대로는 안 될 수 있음
     var fileName: String?       // 가져온 파일 이름
     var tlsWrapped = false      // tls-auth / tls-crypt 사용 (OpenVPN 응답 확인 불가)
+    var configPath: String?     // 누적 미러의 설정 파일 위치
+    var lastSeen: Date?         // 누적 미러에서 마지막으로 확인된 시각
 
     var isImported: Bool { source == .imported }
+    var isPool: Bool { source == .pool }
+    /// 설정 파일을 아직 안 받은 누적 미러 서버
+    var needsConfig: Bool { configText.isEmpty && configPath != nil }
+
+    /// 덜 붐비고 빠른 서버일수록 큰 값 (VPN Gate가 알려 준 속도 ÷ 접속자 수)
+    var roomScore: Double { speedMbps / Double(max(sessions, 0) + 1) }
 
     var speedMbps: Double { Double(speedBps) / 1_000_000 }
 
