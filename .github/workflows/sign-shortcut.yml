@@ -1,0 +1,41 @@
+name: Sign Shortcut
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['shortcuts/**', '.github/workflows/sign-shortcut.yml']
+
+jobs:
+  sign:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sign with macOS shortcuts tool
+        id: sign
+        continue-on-error: true
+        run: |
+          mkdir -p out
+          cp shortcuts/LiveContainer-Refresh.plist "out/unsigned.shortcut"
+          shortcuts sign --mode anyone --input "out/unsigned.shortcut" \
+            --output "out/LiveContainer-Refresh.shortcut" 2>&1 | tee out/sign.log
+          test -s "out/LiveContainer-Refresh.shortcut"
+          head -c 4 "out/LiveContainer-Refresh.shortcut" | xxd
+
+      - name: Show sign log on failure
+        if: steps.sign.outcome != 'success'
+        run: cat out/sign.log || true
+
+      - name: Publish signed shortcut
+        if: steps.sign.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete shortcut --yes --cleanup-tag || true
+          gh release create shortcut "out/LiveContainer-Refresh.shortcut" \
+            --title "단축어: LiveContainer 새로고침" \
+            --notes "아이폰에서 이 파일을 받아 열면 단축어 앱에 추가됩니다." \
+            --latest=false
