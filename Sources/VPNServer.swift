@@ -120,31 +120,56 @@ struct ProfileInfo {
 /// VPN Gate API (CSV) 받아오기와 해석
 enum VPNGateAPI {
     // VPN Gate API는 http만 제공해서 Info.plist에 예외를 넣어 둠
-    static let url = URL(string: "http://www.vpngate.net/api/iphone/")!
+    /// https를 먼저 쓰고, 안 되면 http로 다시 시도.
+    /// http는 통신사 와이파이나 중간 장비에서 막히거나 다른 페이지로 바뀌기 쉬움
+    static let urls = [
+        URL(string: "https://www.vpngate.net/api/iphone/")!,
+        URL(string: "http://www.vpngate.net/api/iphone/")!,
+    ]
 
     enum APIError: LocalizedError {
-        case badResponse, empty
+        case badResponse, empty, failed(String)
         var errorDescription: String? {
             switch self {
             case .badResponse: return "VPN Gate 목록을 읽지 못했어요."
             case .empty: return "지금 연결 가능한 VPN Gate 서버가 없어요."
+            case .failed(let reason): return reason
             }
         }
     }
 
     /// 목록을 받아서 해석한 서버들과 원본 텍스트(저장용)를 돌려줌
     static func fetch() async throws -> (servers: [VPNServer], raw: String) {
-        let request = URLRequest(url: url,
-                                 cachePolicy: .reloadIgnoringLocalCacheData,
-                                 timeoutInterval: 25)
-        let (data, _) = try await URLSession.shared.data(for: request)
-        guard let text = String(data: data, encoding: .utf8)
-                ?? String(data: data, encoding: .isoLatin1) else {
-            throw APIError.badResponse
+        var lastReason = "VPN Gate 목록을 받지 못했어요."
+        for url in urls {
+            let request = URLRequest(url: url,
+                                     cachePolicy: .reloadIgnoringLocalCacheData,
+                                     timeoutInterval: 20)
+            do {
+                let (data, response) = try await URLSession.shared.data(for: request)
+                if let http = response as? HTTPURLResponse, http.statusCode != 200 {
+                    lastReason = "VPN Gate 서버가 응답 코드 \(http.statusCode)를 보냈어요."
+                    continue
+                }
+                guard let text = String(data: data, encoding: .utf8)
+                        ?? String(data: data, encoding: .isoLatin1) else {
+                    lastReason = "VPN Gate 목록을 읽지 못했어요."
+                    continue
+                }
+                let servers = parse(text)
+                if servers.isEmpty {
+                    // 차단 안내 페이지 같은 엉뚱한 내용이 온 경우
+                    lastReason = "VPN Gate 대신 다른 페이지가 받아졌어요. 이 네트워크에서 막혀 있을 수 있어요."
+                    continue
+                }
+                return (servers, text)
+            } catch let error as URLError where error.code == .timedOut {
+                lastReason = "VPN Gate 서버가 응답하지 않아요(시간 초과)."
+            } catch {
+                lastReason = "VPN Gate에 연결하지 못했어요."
+            }
         }
-        let servers = parse(text)
-        if servers.isEmpty { throw APIError.empty }
-        return (servers, text)
+        throw APIError.failed(lastReason)
     }
 
     /// 형식: 1행 "*vpn_servers", 2행 "#HostName,IP,Score,...", 데이터 행들, 마지막 "*"

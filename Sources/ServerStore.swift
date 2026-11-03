@@ -129,10 +129,11 @@ final class ServerStore: ObservableObject {
             sessionSkip.removeAll()
             saveCachedList(result.raw)
         } catch {
+            let reason = (error as? LocalizedError)?.errorDescription ?? "VPN Gate 목록을 받지 못했어요."
             if servers.isEmpty {
-                errorMessage = "VPN Gate 목록을 받지 못했어요. 인터넷 연결을 확인해 주세요."
+                errorMessage = "\(reason) 인터넷 연결을 확인해 주세요."
             } else {
-                errorMessage = "최신 목록을 받지 못해서 저장해 둔 목록으로 보여 드려요."
+                errorMessage = "\(reason) 저장해 둔 목록으로 보여 드려요."
             }
         }
         isLoading = false

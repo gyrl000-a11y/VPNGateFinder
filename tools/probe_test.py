@@ -10,7 +10,7 @@ import struct
 import time
 import urllib.request
 
-API = "http://www.vpngate.net/api/iphone/"
+API = "https://www.vpngate.net/api/iphone/"
 
 
 def fetch():
