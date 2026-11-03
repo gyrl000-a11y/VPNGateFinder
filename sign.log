@@ -1,0 +1,25 @@
+== 1) macOS shortcuts sign ==
+Error: In order to do this, you must be signed into iCloud.
+macOS signing failed, trying HubSign
+== 2) HubSign ==
+HTTP 302
+HTTP/2 302 
+date: Tue, 03 Nov 2026 08:28:22 GMT
+content-type: text/html
+location: https://www.routinehub.co/?ref=https%3A%2F%2Fhubsign.routinehub.services
+server: cloudflare
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+content-security-policy: upgrade-insecure-requests
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=0aWcekLJOtdc75nQWu%2FmAPsBcyKc2WkwgVsK8DQQoyFIzwwL%2FLsOZgOeVmcfkQh7xQ793b8GBtRPAT7oWhGGQiPLtRd1670QVf0yA1MlYR5gL3pIPYuXtuL2jTydLIbqy8Q%2FhlacabhZpVDC%2FvQ%3D"}]}
+cf-ray: a54a014fda875a09-IAD
+alt-svc: h3=":443"; ma=86400
+
+NOT SIGNED
+<html>
+<head><title>302 Found</title></head>
+<body>
+<center><h1>302 Found</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
