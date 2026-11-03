@@ -1,0 +1,57 @@
+name: Build IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build (unsigned)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project VPNGateFinder.xcodeproj \
+            -scheme VPNGateFinder \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee build.log
+
+      - name: Show errors only
+        if: failure()
+        run: |
+          echo "===== 오류 줄만 모은 것 (이 부분을 복사해서 보내 주세요) ====="
+          grep -E "error:|fatal error|BUILD FAILED" build.log | head -n 60 || true
+
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+
+      - name: Package IPA
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/VPNGateFinder.app Payload/
+          zip -qry VPNGateFinder.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VPNGateFinder-ipa
+          path: VPNGateFinder.ipa
