@@ -1,0 +1,121 @@
+name: DropFill build & test
+
+on:
+  push:
+    branches: [dropfill]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  js-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Script tests (jsdom)
+        run: |
+          npm i --no-save jsdom@24 >/dev/null
+          node js/test.js .
+          node js/gatetest.js .
+
+  ios:
+    runs-on: macos-latest
+    needs: js-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Check generated scripts are up to date
+        run: |
+          ./gen_scripts.sh
+          git diff --exit-code DropFill/Scripts.swift
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Pick an iPhone simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)['devices']
+          c=[(rt,x) for rt,l in d.items() if 'iOS' in rt for x in l if x['name'].startswith('iPhone')]
+          c.sort(key=lambda p:p[0])
+          print(c[-1][1]['udid'])")
+          echo "UDID=$UDID" >> $GITHUB_ENV
+          mkdir -p out
+          xcrun simctl list devices | grep "$UDID" | tee out/simulator.txt
+
+      - name: Unit tests on simulator (real WebKit)
+        run: |
+          set -o pipefail
+          xcodebuild test -project DropFill.xcodeproj -scheme DropFill \
+            -destination "id=$UDID" -derivedDataPath simbuild \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee out/test.log | grep -E "error:|Test Case|Executed|TEST (SUCCEEDED|FAILED)|XCTAssert" || true
+          grep -q "TEST SUCCEEDED" out/test.log
+
+      - name: Launch app and screenshot
+        if: always()
+        run: |
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          APP=$(find simbuild/Build/Products -name DropFill.app -path "*iphonesimulator*" | head -1)
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl launch "$UDID" com.hyuk.dropfill
+          sleep 25
+          xcrun simctl io "$UDID" screenshot out/launch.png || true
+          xcrun simctl spawn "$UDID" log show --last 2m --predicate 'process == "DropFill"' --style compact 2>/dev/null \
+            | grep -iE "error|fault|crash" | head -n 40 > out/app-log.txt || true
+
+      - name: Build (unsigned, device)
+        run: |
+          set -o pipefail
+          xcodebuild -project DropFill.xcodeproj -scheme DropFill \
+            -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build 2>&1 | tee out/build.log | tail -n 5
+
+      - name: Show errors only
+        if: failure()
+        run: grep -hE "error:|fatal error|FAILED|failed" out/*.log | head -n 80 || true
+
+      - name: Package IPA
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/DropFill.app Payload/
+          zip -qry DropFill.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DropFill-ipa
+          path: DropFill.ipa
+
+      - name: Publish to Releases (dropfill-latest)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete dropfill-latest --yes --cleanup-tag || true
+          gh release create dropfill-latest DropFill.ipa \
+            --target "$GITHUB_SHA" \
+            --title "드랍필 최신 빌드 ($(date -u -v+9H '+%Y-%m-%d %H:%M') KST)" \
+            --notes "dropfill 브랜치 커밋 ${GITHUB_SHA::7} 에서 빌드한 서명 없는 IPA입니다. Sideloadly로 설치하세요." \
+            --prerelease --latest=false
+
+      - name: Save results to dropfill-test-results branch
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd out
+          git init -q -b dropfill-test-results
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "DropFill test results for ${GITHUB_SHA::7}"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" dropfill-test-results

@@ -1,0 +1,8 @@
+build/
+DropFill.xcodeproj/
+DropFill/Info.plist
+Payload/
+*.ipa
+node_modules/
+simbuild/
+out/

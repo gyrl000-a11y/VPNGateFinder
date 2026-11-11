@@ -1,0 +1,54 @@
+name: DropFill
+options:
+  bundleIdPrefix: com.hyuk
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  DropFill:
+    type: application
+    platform: iOS
+    sources:
+      - path: DropFill
+    info:
+      path: DropFill/Info.plist
+      properties:
+        CFBundleDisplayName: 드랍필
+        CFBundleShortVersionString: "1.1"
+        CFBundleVersion: "2"
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIBackgroundModes: [audio]
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoadsInWebContent: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hyuk.dropfill
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_VERSION: "5.0"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGNING_ALLOWED: "NO"
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGN_IDENTITY: ""
+  DropFillTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: DropFillTests
+    dependencies:
+      - target: DropFill
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: "YES"
+        PRODUCT_BUNDLE_IDENTIFIER: com.hyuk.dropfill.tests
+        SWIFT_VERSION: "5.0"
+        CODE_SIGNING_ALLOWED: "NO"
+schemes:
+  DropFill:
+    build:
+      targets:
+        DropFill: all
+        DropFillTests: [test]
+    test:
+      config: Debug
+      targets:
+        - DropFillTests
