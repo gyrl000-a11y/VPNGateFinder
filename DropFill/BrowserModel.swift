@@ -232,7 +232,11 @@ final class BrowserModel: NSObject, ObservableObject {
 extension BrowserModel: WKNavigationDelegate, WKUIDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         guard webView === self.webView else { return }
-        LastPage.save(webView.url, site: site)
+        // 쇼핑몰·대기열 페이지만 '마지막 페이지'로 기억 (결제사·외부 페이지로 재시작하지 않게)
+        if let h = webView.url?.host,
+           SettingsStore.shared.isShopHost(h) || h.hasSuffix("queue-it.net") || h.hasSuffix("queue-it.com") {
+            LastPage.save(webView.url, site: site)
+        }
         CookieKeeper.save()
     }
 
