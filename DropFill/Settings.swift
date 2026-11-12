@@ -257,7 +257,8 @@ final class SettingsStore: ObservableObject {
         guard !host.isEmpty else { return ["enabled": false] }
         guard autofillOn else { return ["enabled": false, "diag": diagMode] }
         var d: [String: Any] = ["enabled": true, "autoCheckout": autoCheckoutOn, "autoAgree": autoAgree,
-                                "diag": diagMode]
+                                "diag": diagMode, "site": site.rawValue,
+                                "scrollToPay": site == .supreme]   // Supreme: 입력 후 맨 아래 결제 버튼으로
         let shop = isShopHost(host)
         let cardHost = isCardHost(host)
         if shop { d["address"] = profile.dict(lang(for: site)) }

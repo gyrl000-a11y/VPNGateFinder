@@ -15,7 +15,7 @@ enum Scripts {
   var LIFETIME = 10 * 60 * 1000;
 
   // 최종 결제 버튼 — 절대 클릭하지 않고 표시만 한다
-  var PAY_RE = /지금\s*결제|결제\s*하기|주문\s*하기|주문\s*완료|구매\s*하기|주문\s*검토|pay\s*now|complete\s*(order|purchase)|place\s*order|submit\s*order|review\s*order|buy\s*now/i;
+  var PAY_RE = /지금\s*결제|결제\s*하기|결제\s*진행|주문\s*하기|주문\s*완료|구매\s*하기|주문\s*검토|pay\s*now|process\s*payment|complete\s*(order|purchase)|place\s*order|submit\s*order|review\s*order|buy\s*now/i;
   // 다단계 체크아웃에서 다음 단계로 넘어가는 버튼
   var CONTINUE_RE = /(배송|결제|shipping|payment|delivery)[\s\S]{0,15}(계속|continue)|continue\s*to\s*(shipping|payment|delivery)/i;
   // 장바구니 페이지의 체크아웃 버튼
@@ -181,6 +181,12 @@ enum Scripts {
   }
 
   function isCardKey(k) { return k.indexOf('cc') === 0; }
+  function alnum(x) { return String(x || '').toUpperCase().replace(/[^0-9A-Z]/g, ''); }
+  // 통관부호·생년월일·비밀번호 앞 2자리는 다른 값이 들어 있으면(예전 버그·사이트 저장값) 바로잡는다
+  function mustCorrect(key, cur, want) {
+    if (!isIdKey(key)) return false;
+    return alnum(cur) !== alnum(want);
+  }
   function isIdKey(k) { return k === 'birth' || k === 'customs' || k === 'pin2'; }
   function allowedKey(k) {
     if (isCardKey(k)) return !!cfg.card;
@@ -351,7 +357,7 @@ enum Scripts {
         act(function () { changed = setSelect(e, selectCandidates(key2, v)); });
         if (changed) filled++;
         if (key2 === 'country' && filled) break; // 다시 그려질 때까지 기다림
-      } else if (key2 !== 'country' && !e.value) {
+      } else if (key2 !== 'country' && (!e.value || mustCorrect(key2, e.value, v))) {
         var tries = fillCount.get(e) || 0;
         if (tries >= 5) continue;                 // 계속 지워지면 포기 (무한 반복 방지)
         fillCount.set(e, tries + 1);
@@ -397,7 +403,7 @@ enum Scripts {
   // 체크박스마다 '한 번 누르고 기다렸다가 확인'. 사이트가 체크 표시를 늦게 바꾸는 경우가 있어
   // 바로 다시 누르거나 checked 를 강제로 켜면 사이트 내부 상태와 화면이 반대가 된다 (Palace 장바구니).
   var agreeTried = {};
-  var AGREE_FIRST_DELAY = 1500;     // 첫 체크는 페이지가 준비된 뒤 천천히
+  var AGREE_FIRST_DELAY = 500;      // 첫 체크는 페이지가 준비되고 0.5초 뒤
   var AGREE_REPAIR_GAP = 300;       // 체크했는데 버튼이 안 켜지면 빠르게 재시도
   var pageReadyAt = 0;
 
@@ -480,6 +486,18 @@ enum Scripts {
     post({ type: 'ready' });
   }
 
+  var lastFillAt = 0, scrolledFor = '';
+  // 자동입력이 끝나고(1.5초 동안 새로 채운 칸 없음) 결제 버튼이 있는 맨 아래로 한 번 스크롤
+  function maybeScrollToPay() {
+    if (!cfg.scrollToPay || scrolledFor === location.href) return;
+    var now = Date.now();
+    if (!lastFillAt || now - lastFillAt < 1500) return;
+    scrolledFor = location.href;
+    var h = Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
+    try { window.scrollTo({ top: h, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, h); }
+    post({ type: 'log', msg: '결제 버튼 위치로 이동' });
+  }
+
   function afterFill() {
     var path = location.pathname;
     var onCart = /\/cart\/?$/.test(path);
@@ -489,6 +507,7 @@ enum Scripts {
       if (cfg.autoAgree) checkAgreements();   // 체크아웃의 필수 동의(약관·14세 이상 등)
       if (cfg.autoCheckout) tryContinue();
       markPay();
+      maybeScrollToPay();
     }
   }
 
@@ -496,11 +515,12 @@ enum Scripts {
     timer = null;
     var n = 0;
     try { n = pass(); } catch (e) { post({ type: 'log', msg: 'fill error: ' + e.message }); }
-    if (n > 0) post({ type: 'filled', count: n, card: !cfg.address });
+    if (n > 0) { post({ type: 'filled', count: n, card: !cfg.address }); lastFillAt = Date.now(); }
     if (IS_TOP && cfg.address) { try { afterFill(); } catch (e) {} }
     // 장바구니에서는 체크아웃이 눌릴 때까지 0.3초마다 확인 (빠른 재시도)
     if (IS_TOP && cfg.address && cfg.autoCheckout && !cartDone && /\/cart\/?$/.test(location.pathname)
         && Date.now() - started < 60000) schedule(AGREE_REPAIR_GAP);
+    if (IS_TOP && cfg.scrollToPay && lastFillAt && scrolledFor !== location.href && /checkout/i.test(location.pathname)) schedule(500);
   }
 
   function schedule(ms) {

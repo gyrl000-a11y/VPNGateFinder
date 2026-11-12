@@ -136,10 +136,10 @@ ${zone}
     </div>
     <label for="dob">Date of birth (YYYY-MM-DD)</label><input id="extension-x--PaymentAdditionalField-Cards-PersonalCardDateOfBirth" autocomplete="on">
     <label for="pin">PIN code first two digits</label><input id="extension-x--PaymentAdditionalField-Cards-PersonalCardPinCodeFirstTwoDigits" autocomplete="on">
-    <label for="pcc">Personal customs code</label><input id="pcc" name="Personal Customs Code" autocomplete="on">
+    <label for="pcc">Personal customs code</label><input id="pcc" name="Personal Customs Code" autocomplete="on" value="4111111111111111">
     <select name="phone_country_select"><option value="KR">+82</option><option value="US">+1</option></select>
-    <button type="submit">Pay now</button></body>`, 'https://shop.supreme.com/checkouts/cn/abc/en-kr',
-    {enabled:true,autoCheckout:true,autoAgree:true,address:addr,identity:{birth:'19900101',customs:'P123456789012',pin2:'12'}});
+    <button type="submit" id="pay">process payment ₩74,000</button></body>`, 'https://shop.supreme.com/checkouts/cn/abc/en-kr',
+    {enabled:true,autoCheckout:true,autoAgree:true,scrollToPay:true,site:'supreme',address:addr,identity:{birth:'19900101',customs:'P123456789012',pin2:'12'}});
   { const d=t.w.document;
     d.querySelector('label[for=dob]').htmlFor = d.querySelector('[id$=DateOfBirth]').id;
     d.querySelector('label[for=pin]').htmlFor = d.querySelector('[id$=FirstTwoDigits]').id;
@@ -148,12 +148,15 @@ ${zone}
     pcc.addEventListener('input', e => { if (e.data && e.data.length === 1) typed += e.data; else setTimeout(() => { pcc.value = typed; }, 30); });
     // 체크박스는 사이트가 늦게 반영
     ['c0','c1','c2','tos'].forEach(id => { const cb=d.getElementById(id); let st=false; cb.addEventListener('click', e => { e.preventDefault(); st=!st; setTimeout(()=>{ cb.checked=st; }, 80); }); });
+    const scrolls = []; t.w.scrollTo = (o) => scrolls.push(o);
     t.w.eval(AUTOFILL); await sleep(5000);
+    check(scrolls.length === 1, 'scrolled to bottom once after fill: ' + scrolls.length);
+    check(d.getElementById('pay').style.outline.includes('3px'), '"process payment" highlighted as pay button');
     check(['c0','c1','c2','tos'].every(id => d.getElementById(id).checked), 'Supreme required agreements checked');
     check(!d.getElementById('c3').checked && !d.getElementById('save_shipping_information').checked, '"Accept all" and "save info" untouched');
     check(d.querySelector('[id$=DateOfBirth]').value === '1990-01-01', 'DOB yyyy-mm-dd: ' + d.querySelector('[id$=DateOfBirth]').value);
     check(d.querySelector('[id$=FirstTwoDigits]').value === '12', 'PIN first two digits');
-    check(pcc.value === 'P123456789012', 'customs code accepted via per-char typing: ' + pcc.value);
+    check(pcc.value === 'P123456789012', 'wrong saved value (card number) replaced with customs code: ' + pcc.value);
     check(d.querySelector('[name=phone_country_select]').value === 'KR', 'phone country select untouched');
     check(!t.clicks.some(c => /pay now/i.test(c)), 'pay button not clicked'); }
 

@@ -103,6 +103,10 @@ final class DropFillTests: XCTestCase {
         }
         XCTAssertTrue(marked, "pay button not highlighted")
         try? await Task.sleep(nanoseconds: 1_500_000_000)
+        let scrolled = await wait { ((await self.js(m, "window.scrollY") as? Double) ?? 0) > 1000 }
+        XCTAssertTrue(scrolled, "should scroll down to the pay button after autofill")
+        let marked = ((await js(m, "document.getElementById('pay').style.outline") as? String) ?? "").contains("3px")
+        XCTAssertTrue(marked, "'process payment' should be highlighted")
         let paid = await js(m, "window.__paid === true") as? Bool
         XCTAssertEqual(paid, false, "pay button must never be clicked")
     }
@@ -321,8 +325,10 @@ final class DropFillTests: XCTestCase {
         <input id="dob" name="x-PaymentAdditionalField-Cards-PersonalCardDateOfBirth" autocomplete="on">
         <label for="pin">PIN code first two digits</label>
         <input id="pin" name="x-PaymentAdditionalField-Cards-PersonalCardPinCodeFirstTwoDigits" autocomplete="on">
-        <label for="pcc">Personal customs code</label><input id="pcc" name="Personal Customs Code" autocomplete="on">
-        <button id="pay" onclick="window.__paid=true">Pay now</button>
+        <label for="pcc">Personal customs code</label>
+        <input id="pcc" name="Personal Customs Code" autocomplete="on" value="4111111111111111">
+        <div style="height:3000px"></div>
+        <button id="pay" onclick="window.__paid=true">process payment ₩74,000</button>
         <script>
           // 통관부호 칸: 한 번에 들어온 값은 지우고, 한 글자씩 입력된 것만 받아들임
           var pcc = document.getElementById('pcc'), typed = '';
