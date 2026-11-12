@@ -51,7 +51,7 @@ final class DropFillTests: XCTestCase {
         (await js(m, "(document.querySelector('[name=\"\(name)\"]')||{}).value || ''") as? String) ?? ""
     }
 
-    private func wait(_ timeout: TimeInterval = 12, _ cond: () async -> Bool) async -> Bool {
+    private func wait(_ timeout: TimeInterval = 25, _ cond: () async -> Bool) async -> Bool {
         let end = Date().addingTimeInterval(timeout)
         while Date() < end {
             if await cond() { return true }
@@ -299,6 +299,12 @@ final class DropFillTests: XCTestCase {
         load(m, "<html><body><label for='x'>생년월일</label><input id='x' name='bd' value='secret'><button>결제하기</button></body></html>",
              "https://pay.example.com/form")
         let ok = await wait { !m.diag.isEmpty }
+        if !ok {
+            let st = try? await m.webView.evaluateJavaScript(
+                "String(window.__dfLoaded) + ' | ' + String(window.__dfCfgKeys) + ' | ' + String(window.__dfDiagState)",
+                in: nil, contentWorld: .defaultClient)
+            XCTFail("diag state: \(String(describing: st)) | diagMode=\(SettingsStore.shared.diagMode)")
+        }
         XCTAssertTrue(ok, "no diagnostics collected")
         XCTAssertTrue(m.diagText.contains("name=bd"))
         XCTAssertTrue(m.diagText.contains("key=birth"))

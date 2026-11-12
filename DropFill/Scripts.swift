@@ -448,11 +448,14 @@ enum Scripts {
 
   function startDiag() {
     var last = '';
+    window.__dfDiagState = 'started';
     function tick() {
+      window.__dfDiagState = 'tick';
       var snap;
       try { snap = diagSnapshot(); } catch (e) { snap = 'diag error: ' + e.message; }
       if (snap === last) return;
       last = snap;
+      window.__dfDiagState = 'posted';
       post({ type: 'diag', top: IS_TOP, url: location.href.split('?')[0], snapshot: snap });
     }
     setTimeout(tick, 1500);
@@ -461,6 +464,7 @@ enum Scripts {
 
   H.postMessage({ type: 'config' }).then(function (c) {
     cfg = c || {};
+    window.__dfCfgKeys = Object.keys(cfg).join(',') + ' diag=' + cfg.diag;
     if (cfg.diag) startDiag();
     if (cfg.enabled) start();
   }).catch(function () {});
