@@ -15,9 +15,8 @@ targets:
         CFBundleDisplayName: DropFill
         CFBundleName: DropFill
         CFBundleDevelopmentRegion: en
-        CFBundleLocalizations: [en, ko]
-        CFBundleShortVersionString: "1.7"
-        CFBundleVersion: "8"
+        CFBundleShortVersionString: "1.8"
+        CFBundleVersion: "9"
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIBackgroundModes: [audio]

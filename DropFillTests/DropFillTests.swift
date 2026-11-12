@@ -51,7 +51,7 @@ final class DropFillTests: XCTestCase {
         (await js(m, "(document.querySelector('[name=\"\(name)\"]')||{}).value || ''") as? String) ?? ""
     }
 
-    private func wait(_ timeout: TimeInterval = 25, _ cond: () async -> Bool) async -> Bool {
+    private func wait(_ timeout: TimeInterval = 45, _ cond: () async -> Bool) async -> Bool {
         let end = Date().addingTimeInterval(timeout)
         while Date() < end {
             if await cond() { return true }

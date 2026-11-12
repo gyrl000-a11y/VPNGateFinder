@@ -136,7 +136,6 @@ jobs:
             echo "$k = $v"
             echo "$v" | LC_ALL=C grep -q '^[A-Za-z0-9 ]*$' || { echo "::error::$k must be ASCII"; exit 1; }
           done
-          echo "ko.lproj:"; cat build/Build/Products/Release-iphoneos/DropFill.app/ko.lproj/InfoPlist.strings | iconv -f UTF-16 -t UTF-8 2>/dev/null || plutil -p build/Build/Products/Release-iphoneos/DropFill.app/ko.lproj/InfoPlist.strings
 
       - name: Package IPA (파일명에 버전)
         run: |
