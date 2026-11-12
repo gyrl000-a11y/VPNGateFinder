@@ -6,6 +6,8 @@ import WebKit
 ///  -uitest-reset  : 상세주소를 비운 예시 배송지로 초기화
 enum UITestMode {
     static var on: Bool { ProcessInfo.processInfo.arguments.contains("-uitest") }
+    /// XCTest가 앱을 띄운 경우 (단위 테스트 포함) — 알림 권한 팝업 등 생략
+    static var underTests: Bool { on || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil }
     static var reset: Bool { ProcessInfo.processInfo.arguments.contains("-uitest-reset") }
 
     static func prepareSettings() {

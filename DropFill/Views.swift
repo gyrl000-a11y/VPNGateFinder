@@ -8,7 +8,7 @@ struct DropFillApp: App {
 
     init() {
         UITestMode.prepareSettings()
-        if !UITestMode.on {
+        if !UITestMode.underTests {
             Notifier.shared.setup()
             DropAlarm.reschedule()
         }

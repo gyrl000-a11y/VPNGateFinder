@@ -7,6 +7,12 @@ final class SettingsUITests: XCTestCase {
 
     override func setUp() {
         continueAfterFailure = false
+        addUIInterruptionMonitor(withDescription: "system alert") { alert in
+            for b in ["Allow", "허용", "OK", "확인"] where alert.buttons[b].exists {
+                alert.buttons[b].tap(); return true
+            }
+            return false
+        }
     }
 
     private func shot(_ name: String) {
@@ -31,6 +37,24 @@ final class SettingsUITests: XCTestCase {
         while !el.isHittable && n < 8 { app.swipeUp(); n += 1 }
     }
 
+    /// 목록은 화면에 들어올 때 칸이 만들어지므로, 아래로 내리며 찾는다
+    private func scrollFind(_ el: XCUIElement, in app: XCUIApplication, _ name: String) -> Bool {
+        if el.waitForExistence(timeout: 3) { reveal(el, in: app); return true }
+        for _ in 0..<10 {
+            app.swipeUp()
+            if el.exists { reveal(el, in: app); return true }
+        }
+        dumpHierarchy(app, name)
+        return false
+    }
+
+    private func dumpHierarchy(_ app: XCUIApplication, _ name: String) {
+        shot("fail-\(name)")
+        if let dir = ProcessInfo.processInfo.environment["SHOT_DIR"] {
+            try? app.debugDescription.write(toFile: dir + "/fail-\(name).txt", atomically: true, encoding: .utf8)
+        }
+    }
+
     private func dismissKeyboard(_ app: XCUIApplication) {
         let done = app.buttons["완료"].firstMatch
         if done.exists { done.tap() }
@@ -43,16 +67,16 @@ final class SettingsUITests: XCTestCase {
         app.launch()
         openTab(app, "설정")
 
+        XCTAssertTrue(app.navigationBars["드랍필 설정"].waitForExistence(timeout: 10), "설정 화면이 안 열림")
         let field = app.textFields["field.address2"]
-        XCTAssertTrue(field.waitForExistence(timeout: 10), "설정에 상세주소 칸이 없음")
-        reveal(field, in: app)
+        XCTAssertTrue(scrollFind(field, in: app, "settings-field"), "설정에 상세주소 칸이 없음")
         XCTAssertTrue(app.staticTexts["상세주소"].exists, "상세주소 칸 이름이 안 보임")
         field.tap()
         field.typeText(detail)
         XCTAssertEqual(field.value as? String, detail)
         dismissKeyboard(app)
         let preview = app.staticTexts["addressPreview"]
-        reveal(preview, in: app)
+        XCTAssertTrue(scrollFind(preview, in: app, "preview"), "주소 미리보기가 없음")
         XCTAssertTrue(preview.label.contains(detail), "입력된 주소 미리보기에 상세주소 없음: \(preview.label)")
         shot("1-settings-entered")
 
@@ -62,8 +86,7 @@ final class SettingsUITests: XCTestCase {
         app.launch()
         openTab(app, "설정")
         let again = app.textFields["field.address2"]
-        XCTAssertTrue(again.waitForExistence(timeout: 10))
-        reveal(again, in: app)
+        XCTAssertTrue(scrollFind(again, in: app, "relaunch-field"))
         XCTAssertEqual(again.value as? String, detail, "재실행 후 상세주소가 사라짐")
         shot("2-settings-after-relaunch")
 
@@ -72,7 +95,8 @@ final class SettingsUITests: XCTestCase {
         let web = app.webViews.firstMatch
         XCTAssertTrue(web.waitForExistence(timeout: 15), "웹 화면이 안 뜸")
         let webDetail = web.textFields["상세주소"]
-        XCTAssertTrue(webDetail.waitForExistence(timeout: 15), "체크아웃 상세주소 칸을 못 찾음")
+        if !webDetail.waitForExistence(timeout: 15) { dumpHierarchy(app, "web") }
+        XCTAssertTrue(webDetail.exists, "체크아웃 상세주소 칸을 못 찾음")
         let filled = expectation(for: NSPredicate(format: "value == %@", detail), evaluatedWith: webDetail)
         wait(for: [filled], timeout: 20)
         shot("3-checkout-filled")
