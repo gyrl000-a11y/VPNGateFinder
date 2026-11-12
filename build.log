@@ -1,0 +1,382 @@
+Command line invocation:
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/xcodebuild -project DropFill.xcodeproj -scheme DropFill -configuration Release -sdk iphoneos -destination generic/platform=iOS -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= build
+
+Build settings from command line:
+    CODE_SIGN_IDENTITY = 
+    CODE_SIGNING_ALLOWED = NO
+    CODE_SIGNING_REQUIRED = NO
+    SDKROOT = iphoneos26.5
+
+note: Using codesigning identity override: 
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'DropFill' in project 'DropFill' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 7b7b5f30eb62a309958a9d4f71574eb9
+Build description path: /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/XCBuildData/7b7b5f30eb62a309958a9d4f71574eb9.xcbuilddata
+ClangStatCache /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk /Users/runner/work/VPNGateFinder/VPNGateFinder/build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill.xcodeproj
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -o /Users/runner/work/VPNGateFinder/VPNGateFinder/build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache
+
+CreateBuildDirectory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill.xcodeproj
+    builtin-create-build-directory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products
+
+CreateBuildDirectory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill.xcodeproj
+    builtin-create-build-directory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill-cbe80f8bc0049aa72ca8789cebb7f0fd-VFS-iphoneos/all-product-headers.yaml
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill.xcodeproj
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill-cbe80f8bc0049aa72ca8789cebb7f0fd-VFS-iphoneos/all-product-headers.yaml
+
+CreateBuildDirectory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill.xcodeproj
+    builtin-create-build-directory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill.xcodeproj
+    builtin-create-build-directory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos
+
+CreateBuildDirectory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill.xcodeproj
+    builtin-create-build-directory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+CreateBuildDirectory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill.xcodeproj
+    builtin-create-build-directory /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill_const_extract_protocols.json (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.SwiftFileList (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.SwiftConstValuesFileList (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.LinkFileList (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-OutputFileMap.json (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill.hmap (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill.hmap
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill.DependencyStaticMetadataFileList (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill.DependencyMetadataFileList (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-project-headers.hmap (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-own-target-headers.hmap (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-generated-files.hmap (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-all-target-headers.hmap (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-all-non-framework-target-headers.hmap (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    write-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-all-non-framework-target-headers.hmap
+
+MkDir /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    /bin/mkdir -p /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app
+
+MkDir /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_output/unthinned (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    /bin/mkdir -p /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_output/unthinned
+
+MkDir /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_output/thinned (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    /bin/mkdir -p /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_output/thinned
+
+GenerateAssetSymbols /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Assets.xcassets (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/actool /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Assets.xcassets --compile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_dependencies --output-partial-info-plist /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_generated_info.plist --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --minimum-deployment-target 16.0 --platform iphoneos --bundle-identifier com.hyuk.dropfill --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+CompileAssetCatalogVariant thinned /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Assets.xcassets (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    /Applications/Xcode_26.6.app/Contents/Developer/usr/bin/actool /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Assets.xcassets --compile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --minimum-deployment-target 16.0 --platform iphoneos
+/* com.apple.actool.compilation-results */
+/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_generated_info.plist_thinned
+/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_output/thinned/AppIcon60x60@2x.png
+/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_output/thinned/AppIcon76x76@2x~ipad.png
+/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_output/thinned/Assets.car
+
+
+SwiftDriver DropFill normal arm64 com.apple.xcode.tools.swift.compiler (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-SwiftDriver -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name DropFill -O -whole-module-optimization @/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos -F /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/work/VPNGateFinder/VPNGateFinder/build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-generated-files.hmap -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-own-target-headers.hmap -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-project-headers.hmap -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-Swift.h -working-directory /Users/runner/work/VPNGateFinder/VPNGateFinder -no-emit-module-separately-wmo
+
+SwiftDriver\ Compilation DropFill normal arm64 com.apple.xcode.tools.swift.compiler (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-Swift-Compilation -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name DropFill -O -whole-module-optimization @/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos -F /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/work/VPNGateFinder/VPNGateFinder/build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-generated-files.hmap -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-own-target-headers.hmap -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-project-headers.hmap -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-Swift.h -working-directory /Users/runner/work/VPNGateFinder/VPNGateFinder -no-emit-module-separately-wmo
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/ptrauth-1OXD6SNKUDXM6L6IHKB75SWLZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/SwiftShims-5XN92RMO3OJ5V1O23ZI98KUC0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_float-3A1TA1MN7A6R6MZM0XAGOTBGU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/ptrcheck-AFRMBH05NOLUJI271938MZ3P4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_SwiftConcurrencyShims-5U6O2SC0299BB4V8Q7GHEZ1JZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_stddef-1TB95WKODUB04YO6EAMQVMU4E.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_stdbool-7ZIBYNQPERE8MRQE1HNCUKX40.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_stdarg-AJZ55Q6038GO5I2ZE3SAIASN0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/DeveloperToolsSupport-EX20REFGIM2NDZXN7PPSLGAS6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_AvailabilityInternal-13B1UTXI35W399HR58YRO7DPC.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_DarwinFoundation1-CAE864R14VCQWK2BYG6P5BQ72.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_limits-5J96FP5WIDEY8TPW8RNJKOP85.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_DarwinFoundation2-2QLO4PN7TA8U4SF5FBRGGY9Y8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_tgmath-9XCATEAPONJ5DBW54OXN43LVT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/sys_types-IV8O2B5BGZTX6PTRQAJ5HXYA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_stdint-3D49W753IZYA85ILAQUDVZBK7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_intrinsics-4Z1U7I1O4SLIHA36ZHBR88U2F.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_stdatomic-4IJK0ICTAJ0ZGJ00VZ9HNT008.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_DarwinFoundation3-2LMRJQJW935K8DDVFBZAOKLQW.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_inttypes-8UJBTW1IKYTNCDIFJJ90I74BH.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/simd-8NIBFWR2DXZ0754M88F7DQ2IN.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Darwin-7IS76240G6I0DH8AUC9J6GGEY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Spatial-ES42LHLX8T88DF1P4OVHU14W8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/ObjectiveC-DQS8H34W8FL5MBN4YO3HK3EY7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/MachO-F0LS0YTPMIE9KGKCCEI1KJN7Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/os_object-EEUHSZR2YH4702EL16UM5XWOE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/os_workgroup-78VB7TWBJSV9SF5NYY97CYDF7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Dispatch-27FHUCVXMROLWTG3FDSMK4M80.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/dnssd-EUAOB9NHESG9SHRGICBNWU0V9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/XPC-CIUSIN6J1EQ4SXZAL3EY6S162.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreFoundation-52MPSV5DP79F6HVWLTTRW35CT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/os-AISX58G4HSIEWMRUQY0RRUIT6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CFNetwork-3KHS42CJ02UVL7GPLKR8O60N2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreAudioTypes-2VO83S7RGACQDBJER1R5XSVOP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreGraphics-DWLIXQHHFASRLQVV6N92GBY61.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreAudio-3K6K3Z43OWEX8PVV559DQKZ4O.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Security-A6TAKSIR9AXEZZ4JEA3SDLIFK.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/ImageIO-CMTOVIAGGA1LKY5AMAEQUJHI1.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreText-7Z1UUKJWQQ99BEK325NUQMEF0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Foundation-AP2J58VX8E157YQFL0YM42FNP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Network-C1AS1DBY4QSBS89XYNKRBFVSD.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Symbols-8OELLAQ35NC53BEQCK6K7KEW6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreTransferable-6KILT7OE6U0AV03181PSZWE47.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/IOSurface-DMB7YOXEJCYVGVR45087UXNAF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/FileProvider-1ER2SNS9SZOAZ1MWU8ISL1I2Z.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/UIUtilities-7QDBT6237MJXO9VGEUIE7LX7V.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/OpenGLES-C33XOI8S2HA34RK393GXAKZFT.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreData-D982TLO70N1XFYYCPEWX1NXQU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreMIDI-9AXNJOQ8MUM0LP2RYF3EFNW7C.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/DataDetection-21Y9JZ6GSQD2BTBVI85Z2HIKJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/UserNotifications-2D2W4E3VUCI7KI9KM2SEWKB68.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/AudioToolbox-11RBKG5NQO279LYMKR364YW9X.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Accessibility-6E2QHOMHYF4NUYM8RUTRVWGB3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/OSLog-AFT6STFHUFJC4YWYI2JZFRLBY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/UniformTypeIdentifiers-13ERPTVLIZ7LK51P9OFD1BCO5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Metal-9B7DCI7O8NZC7XHSJWS68PH4N.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/AVRouting-9Q8SG6SI4ZO54XYKVOGNB46CS.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreVideo-5FMABCH1UM8PNB8VJJLZM1PRP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/QuartzCore-2MBNNOHK4YU9FD2EUEL14IFNP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreMedia-C4AHSG4TWP96XSBV6XK9M4PFI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreImage-1B7RHFR4FGI3OXHV5V0YGQU57.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/SwiftUICore-99EYS62BT7ARSKDP8W40UXVA3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/MediaToolbox-6IKJOI8BDVGB9F9ZMB63WS4XJ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/AVFAudio-2BWRLE8CJMT95OKM4AJIVCDMZ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/UIKit-B5VYRA8MPLOM06AYEKYEG5XEM.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/AVFoundation-7D192SNSL4GEZAWJ261TID37B.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/SwiftUI-2NQZK7UXEP2MRDXZ6IEAT627H.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/WebKit-6GFE1ZN7CBEHK7ILXXFK1LEBV.pcm
+
+SwiftCompile normal arm64 Compiling\ Address.swift,\ BrowserModel.swift,\ Scripts.swift,\ Session.swift,\ Settings.swift,\ UITestSupport.swift,\ Views.swift,\ GeneratedAssetSymbols.swift /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Address.swift /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/BrowserModel.swift /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Scripts.swift /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Session.swift /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Settings.swift /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/UITestSupport.swift /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Views.swift /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/GeneratedAssetSymbols.swift /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/CoreGraphics.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/AudioToolbox.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/_StringProcessing.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/CoreImage.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Symbols.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/CoreText.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/XPC.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Foundation.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/UniformTypeIdentifiers.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/ObjectiveC.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/OSLog.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/_DarwinFoundation2.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/AVFoundation.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Darwin.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/_Builtin_float.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Dispatch.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/CoreTransferable.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Combine.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/SwiftUI.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Metal.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/QuartzCore.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/CoreFoundation.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/CoreMIDI.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Network.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/FileProvider.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/simd.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/DeveloperToolsSupport.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Synchronization.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Distributed.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/WebKit.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/DataDetection.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/UIKit.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/SwiftUICore.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/CoreVideo.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/os.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Spatial.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/CoreMedia.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/_Concurrency.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/_DarwinFoundation1.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/_WebKit_SwiftUI.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Accessibility.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/CoreData.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/CoreAudio.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/AVFAudio.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Swift.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/System.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/Observation.swiftmodule/arm64e-apple-ios.swiftmodule /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos/prebuilt-modules/26.5/_DarwinFoundation3.swiftmodule/arm64e-apple-ios.swiftmodule /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_stdbool-7ZIBYNQPERE8MRQE1HNCUKX40.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreMedia-C4AHSG4TWP96XSBV6XK9M4PFI.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreVideo-5FMABCH1UM8PNB8VJJLZM1PRP.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_stddef-1TB95WKODUB04YO6EAMQVMU4E.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_DarwinFoundation1-CAE864R14VCQWK2BYG6P5BQ72.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/DataDetection-21Y9JZ6GSQD2BTBVI85Z2HIKJ.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/AVRouting-9Q8SG6SI4ZO54XYKVOGNB46CS.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_AvailabilityInternal-13B1UTXI35W399HR58YRO7DPC.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreFoundation-52MPSV5DP79F6HVWLTTRW35CT.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CFNetwork-3KHS42CJ02UVL7GPLKR8O60N2.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/simd-8NIBFWR2DXZ0754M88F7DQ2IN.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/OpenGLES-C33XOI8S2HA34RK393GXAKZFT.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/dnssd-EUAOB9NHESG9SHRGICBNWU0V9.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/DeveloperToolsSupport-EX20REFGIM2NDZXN7PPSLGAS6.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Dispatch-27FHUCVXMROLWTG3FDSMK4M80.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/AVFoundation-7D192SNSL4GEZAWJ261TID37B.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_intrinsics-4Z1U7I1O4SLIHA36ZHBR88U2F.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Spatial-ES42LHLX8T88DF1P4OVHU14W8.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/ptrauth-1OXD6SNKUDXM6L6IHKB75SWLZ.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Foundation-AP2J58VX8E157YQFL0YM42FNP.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/SwiftUICore-99EYS62BT7ARSKDP8W40UXVA3.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreGraphics-DWLIXQHHFASRLQVV6N92GBY61.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/UniformTypeIdentifiers-13ERPTVLIZ7LK51P9OFD1BCO5.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/os_object-EEUHSZR2YH4702EL16UM5XWOE.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_stdarg-AJZ55Q6038GO5I2ZE3SAIASN0.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_DarwinFoundation2-2QLO4PN7TA8U4SF5FBRGGY9Y8.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/MediaToolbox-6IKJOI8BDVGB9F9ZMB63WS4XJ.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Symbols-8OELLAQ35NC53BEQCK6K7KEW6.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreAudioTypes-2VO83S7RGACQDBJER1R5XSVOP.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_stdint-3D49W753IZYA85ILAQUDVZBK7.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/OSLog-AFT6STFHUFJC4YWYI2JZFRLBY.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/ObjectiveC-DQS8H34W8FL5MBN4YO3HK3EY7.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/WebKit-6GFE1ZN7CBEHK7ILXXFK1LEBV.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Network-C1AS1DBY4QSBS89XYNKRBFVSD.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/ptrcheck-AFRMBH05NOLUJI271938MZ3P4.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/XPC-CIUSIN6J1EQ4SXZAL3EY6S162.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreAudio-3K6K3Z43OWEX8PVV559DQKZ4O.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/FileProvider-1ER2SNS9SZOAZ1MWU8ISL1I2Z.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreMIDI-9AXNJOQ8MUM0LP2RYF3EFNW7C.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/os-AISX58G4HSIEWMRUQY0RRUIT6.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_inttypes-8UJBTW1IKYTNCDIFJJ90I74BH.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/SwiftShims-5XN92RMO3OJ5V1O23ZI98KUC0.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_float-3A1TA1MN7A6R6MZM0XAGOTBGU.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/SwiftUI-2NQZK7UXEP2MRDXZ6IEAT627H.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/AudioToolbox-11RBKG5NQO279LYMKR364YW9X.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Metal-9B7DCI7O8NZC7XHSJWS68PH4N.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreImage-1B7RHFR4FGI3OXHV5V0YGQU57.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/UIKit-B5VYRA8MPLOM06AYEKYEG5XEM.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_limits-5J96FP5WIDEY8TPW8RNJKOP85.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_SwiftConcurrencyShims-5U6O2SC0299BB4V8Q7GHEZ1JZ.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Accessibility-6E2QHOMHYF4NUYM8RUTRVWGB3.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/QuartzCore-2MBNNOHK4YU9FD2EUEL14IFNP.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_stdatomic-4IJK0ICTAJ0ZGJ00VZ9HNT008.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/ImageIO-CMTOVIAGGA1LKY5AMAEQUJHI1.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Security-A6TAKSIR9AXEZZ4JEA3SDLIFK.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Darwin-7IS76240G6I0DH8AUC9J6GGEY.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/UserNotifications-2D2W4E3VUCI7KI9KM2SEWKB68.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/MachO-F0LS0YTPMIE9KGKCCEI1KJN7Q.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/sys_types-IV8O2B5BGZTX6PTRQAJ5HXYA.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_Builtin_tgmath-9XCATEAPONJ5DBW54OXN43LVT.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreTransferable-6KILT7OE6U0AV03181PSZWE47.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/os_workgroup-78VB7TWBJSV9SF5NYY97CYDF7.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreText-7Z1UUKJWQQ99BEK325NUQMEF0.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/UIUtilities-7QDBT6237MJXO9VGEUIE7LX7V.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/AVFAudio-2BWRLE8CJMT95OKM4AJIVCDMZ.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/_DarwinFoundation3-2LMRJQJW935K8DDVFBZAOKLQW.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/CoreData-D982TLO70N1XFYYCPEWX1NXQU.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/IOSurface-DMB7YOXEJCYVGVR45087UXNAF.pcm /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-dependencies-1.json (in target 'DropFill' from project 'DropFill')
+CompileSwift normal arm64 (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    
+
+LinkAssetCatalog /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Assets.xcassets (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-linkAssetCatalog --thinned /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_output/thinned --thinned-dependencies /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_generated_info.plist_thinned --unthinned /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_output/unthinned --unthinned-dependencies /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_generated_info.plist_unthinned --output /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app --plist-output /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_generated_info.plist
+note: Emplaced /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/AppIcon60x60@2x.png (in target 'DropFill' from project 'DropFill')
+note: Emplaced /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/AppIcon76x76@2x~ipad.png (in target 'DropFill' from project 'DropFill')
+note: Emplaced /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/Assets.car (in target 'DropFill' from project 'DropFill')
+
+SwiftDriverJobDiscovery normal arm64 Compiling Address.swift, BrowserModel.swift, Scripts.swift, Session.swift, Settings.swift, UITestSupport.swift, Views.swift, GeneratedAssetSymbols.swift (in target 'DropFill' from project 'DropFill')
+
+SwiftDriver\ Compilation\ Requirements DropFill normal arm64 com.apple.xcode.tools.swift.compiler (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name DropFill -O -whole-module-optimization @/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos -F /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/work/VPNGateFinder/VPNGateFinder/build/SDKStatCaches.noindex/iphoneos26.5-23F81a-688ef53f1462e2c8f657fdc38a81448fee66e23052a0157c865c76b268046726.sdkstatcache -output-file-map /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex -sdk-module-cache-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-generated-files.hmap -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-own-target-headers.hmap -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill-project-headers.hmap -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-Swift.h -working-directory /Users/runner/work/VPNGateFinder/VPNGateFinder -no-emit-module-separately-wmo
+
+ProcessInfoPlistFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/Info.plist /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Info.plist (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-infoPlistUtility /Users/runner/work/VPNGateFinder/VPNGateFinder/DropFill/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/PkgInfo -expandbuildsettings -format binary -platform iphoneos -additionalcontentfile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/assetcatalog_generated_info.plist -requiredArchitecture arm64 -o /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/Info.plist
+
+SwiftMergeGeneratedHeaders /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/DropFill-Swift.h /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-Swift.h (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-Swift.h -o /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DerivedSources/DropFill-Swift.h
+
+Copy /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.swiftmodule/arm64-apple-ios.swiftmodule /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.swiftmodule (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.swiftmodule /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.swiftmodule/arm64-apple-ios.swiftmodule
+
+Copy /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.swiftmodule/arm64-apple-ios.swiftdoc /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.swiftdoc (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.swiftdoc /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.swiftmodule/arm64-apple-ios.swiftdoc
+
+Copy /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.swiftmodule/arm64-apple-ios.abi.json /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.abi.json (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.abi.json /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.swiftmodule/arm64-apple-ios.abi.json
+
+Copy /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.swiftsourceinfo (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.swiftsourceinfo /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo
+
+Ld /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/DropFill normal (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios16.0 -isysroot /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk -Os -L/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -L/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos -F/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -F/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos -filelist /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.LinkFileList -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill_lto.o -Xlinker -dependency_info -Xlinker /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill_dependency_info.dat -fobjc-link-runtime -L/Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.swiftmodule @/Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill-linker-args.resp -o /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/DropFill
+
+ExtractAppIntentsMetadata (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.APkRhR/Metal.xctoolchain --module-name DropFill --sdk-root /Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk --xcode-version 17F113 --platform-family iOS --deployment-target 16.0 --bundle-identifier com.hyuk.dropfill --output /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app --target-triple arm64-apple-ios16.0 --binary-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/DropFill --dependency-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill_dependency_info.dat --stringsdata-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.SwiftFileList --metadata-file-list /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill.DependencyMetadataFileList --static-metadata-file-list /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill.DependencyStaticMetadataFileList --swift-const-vals-list /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/Objects-normal/arm64/DropFill.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents --no-app-shortcuts-localization
+2026-11-12 11:20:47.755 appintentsmetadataprocessor[22550:73206] Starting appintentsmetadataprocessor export
+2026-11-12 11:20:47.775 appintentsmetadataprocessor[22550:73206] warning: Metadata extraction skipped. No AppIntents.framework dependency found.
+
+GenerateDSYMFile /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app.dSYM /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/DropFill (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/DropFill -o /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app.dSYM
+
+CopySwiftLibs /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/DropFill --scan-folder /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/Frameworks --scan-folder /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/PlugIns --scan-folder /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/SystemExtensions --scan-folder /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/Extensions --platform iphoneos --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.APkRhR/Metal.xctoolchain --toolchain /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+Ignoring --strip-bitcode because --sign was not passed
+
+AppIntentsSSUTraining (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/Info.plist --temp-dir-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/ssu --bundle-id com.hyuk.dropfill --product-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app --extracted-metadata-path /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/Metadata.appintents --metadata-file-list /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Intermediates.noindex/DropFill.build/Release-iphoneos/DropFill.build/DropFill.DependencyMetadataFileList --source-file /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app/Info.plist --archive-ssu-assets
+2026-11-12 11:20:48.072 appintentsnltrainingprocessor[22553:73224] Parsing options for appintentsnltrainingprocessor
+2026-11-12 11:20:48.074 appintentsnltrainingprocessor[22553:73224] Starting AppIntents SSU YAML Generation
+2026-11-12 11:20:48.086 appintentsnltrainingprocessor[22553:73224] No AppShortcuts found - Skipping.
+
+RegisterExecutionPolicyException /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-RegisterExecutionPolicyException /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app
+
+Validate /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    builtin-validationUtility /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app (in target 'DropFill' from project 'DropFill')
+    cd /Users/runner/work/VPNGateFinder/VPNGateFinder
+    /usr/bin/touch -c /Users/runner/work/VPNGateFinder/VPNGateFinder/build/Build/Products/Release-iphoneos/DropFill.app
+
+** BUILD SUCCEEDED **
+

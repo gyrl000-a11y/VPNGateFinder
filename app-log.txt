@@ -1,0 +1,40 @@
+2026-11-12 11:13:49.839 Df DropFill[13655:c151] [com.apple.BoardServices:XPCErrors] [C:1] Alloc com.apple.frontboard.systemappservices
+2026-11-12 11:13:49.873 Df DropFill[13655:c143] [com.apple.dt.xctest:Default] Registering for test daemon availability notify post.
+2026-11-12 11:13:49.875 Df DropFill[13655:c143] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-11-12 11:13:49.875 Df DropFill[13655:c143] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-11-12 11:13:49.875 Df DropFill[13655:c143] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-11-12 11:13:49.927 Df DropFill[13655:c143] [com.apple.BoardServices:XPCErrors] [C:2] Alloc com.apple.backboard.hid-services.xpc
+2026-11-12 11:13:49.932 Df DropFill[13655:c143] [com.apple.BacklightServices:scenes] 0x103c32eb0 setDelegate:<0x103c32f10 _UIBacklightEnvironment> hasDelegate:YES for environment:sceneID:com.hyuk.dropfill-default
+2026-11-12 11:13:49.936 Df DropFill[13655:c143] [com.apple.UIKit:KeyWindow] Setting default evaluation strategy for UIUserInterfaceIdiomPhone to LastOneWins
+2026-11-12 11:13:49.936 Df DropFill[13655:c143] [com.apple.UIKit:KeyWindow] Scene target of keyboard event deferring environment did change: 1; scene: UIWindowScene: 0x1035ecc60; scene identity: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.hyuk.dropfill-default
+2026-11-12 11:13:49.936 Df DropFill[13655:c143] [com.apple.UIKit:KeyWindow] Scene became target of keyboard event deferring environment: UIWindowScene: 0x1035ecc60; scene identity: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.hyuk.dropfill-default
+2026-11-12 11:13:49.936 Df DropFill[13655:c143] [com.apple.UIKit:KeyWindow] Setting default evaluation strategy for UIUserInterfaceIdiomPhone to SystemShellManaged
+2026-11-12 11:13:50.036 Df DropFill[13655:c143] [com.apple.UIKit:KeyWindow] Window did become application key: UIWindow: 0x103dac400; contextId: 0xD52380BB; scene identity: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.hyuk.dropfill-default
+2026-11-12 11:13:50.039 Df DropFill[13655:c143] [com.apple.UIKit:AppLifecycle] sceneOfRecord: sceneID: sceneID:com.hyuk.dropfill-default  persistentID: 1011C786-93A4-4708-BDEF-BDFBDE7A318B
+2026-11-12 11:13:50.043 Df DropFill[13655:c151] [com.apple.BackBoard:EventDelivery] policyStatus:<BKSHIDEventDeliveryPolicyObserver: 0x103c5f5a0; token: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.hyuk.dropfill-default; status: ancestor> was:target
+2026-11-12 11:13:51.751 Df DropFill[13655:c143] [com.apple.network:activity] Create activity from XPC object <nw_activity 50:1 [10BA9FC7-A07E-4C8F-A626-F6E1ED7C8E13] (reporting strategy default)>
+2026-11-12 11:13:51.751 Df DropFill[13655:c143] [com.apple.network:activity] Create activity from XPC object <nw_activity 50:2 [3AB7E1EF-EB74-4951-AFAE-95FEE0D73D74] (reporting strategy default)>
+2026-11-12 11:13:51.751 Df DropFill[13655:c143] [com.apple.network:activity] Set activity <nw_activity 50:1 [10BA9FC7-A07E-4C8F-A626-F6E1ED7C8E13] (reporting strategy default)> as the global parent
+2026-11-12 11:13:51.758 Df DropFill[13655:c143] [com.apple.UIKit:KeyWindow] Scene became target of keyboard event deferring environment: UIWindowScene: 0x1035ecc60; scene identity: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.hyuk.dropfill-default
+2026-11-12 11:13:51.779 Df DropFill[13655:c143] [com.apple.UIKit:AppLifecycle] sceneOfRecord: sceneID: sceneID:com.hyuk.dropfill-default  persistentID: 1011C786-93A4-4708-BDEF-BDFBDE7A318B
+2026-11-12 11:13:51.812 Df DropFill[13655:c143] [com.apple.UIKit:AppLifecycle] sceneOfRecord: sceneID: sceneID:com.hyuk.dropfill-default  persistentID: 1011C786-93A4-4708-BDEF-BDFBDE7A318B
+2026-11-12 11:13:51.837 Df DropFill[13655:c143] [com.apple.WebKit:Sandbox] Successfully created a sandbox extension for '/Users/runner/Library/Developer/CoreSimulator/Devices/23C8F95C-765D-46A9-AE82-0BEE2921C8D7/data/Containers/Data/Application/6D12D553-E01D-4D88-AFAC-DDB7B516A2BA/Library/WebKit/com.hyuk.dropfill/WebsiteData/Default'
+2026-11-12 11:13:51.838 Df DropFill[13655:c143] [com.apple.CFNetwork:Default] Initializing CFHTTPCookieStorage singleton
+2026-11-12 11:13:51.838 Df DropFill[13655:c143] [com.apple.CFNetwork:Default] Creating default cookie storage with process/bundle identifier
+2026-11-12 11:13:51.876 E  DropFill[13655:c155] [com.apple.extensionkit:default] Failed to resolve host network app id to config: bundleID: com.apple.WebKit.Networking instance ID: Optional([_EXExtensionInstanceIdentifier: 90D6B656-E65D-4E90-AC35-9CE19045CB98])
+2026-11-12 11:13:51.932 Df DropFill[13655:c143] [com.apple.network:activity] <nw_activity 50:1 [10BA9FC7-A07E-4C8F-A626-F6E1ED7C8E13] (global parent) (reporting strategy default) complete (reason success)> complete with reason 2 (success), duration 2719ms
+2026-11-12 11:13:51.933 Df DropFill[13655:c143] [com.apple.network:activity] <nw_activity 50:2 [3AB7E1EF-EB74-4951-AFAE-95FEE0D73D74] (reporting strategy default) complete (reason success)> complete with reason 2 (success), duration 2719ms
+2026-11-12 11:13:51.933 Df DropFill[13655:c143] [com.apple.network:activity] Unsetting the global parent activity <nw_activity 50:1 [10BA9FC7-A07E-4C8F-A626-F6E1ED7C8E13] (global parent) (reporting strategy default) complete (reason success)>
+2026-11-12 11:13:52.573 Df DropFill[13655:c156] [com.apple.xpc:connection] [0x168cb8000] Re-initialization successful; calling out to event handler with XPC_ERROR_CONNECTION_INTERRUPTED
+2026-11-12 11:13:52.573 Df DropFill[13655:c156] [com.apple.xpc:connection] [0x168cb8640] Re-initialization successful; calling out to event handler with XPC_ERROR_CONNECTION_INTERRUPTED
+2026-11-12 11:13:54.327 Df DropFill[13655:c155] [com.apple.AppSSO:SOClient] configurationWithCompletion: success = YES, error = (null)
+2026-11-12 11:13:57.904 E  DropFill[13655:c207] [com.apple.WebKit:ProcessSuspension] WebContent[13682] 0x10d060100 - [sessionID=1] WebProcess::updateFreezerStatus: isFreezable=1, error=-1
+2026-11-12 11:14:19.025 Df DropFill[14359:c982] [com.apple.BoardServices:XPCErrors] [C:1] Alloc com.apple.frontboard.systemappservices
+2026-11-12 11:14:19.073 Df DropFill[14359:c982] [com.apple.dt.xctest:Default] Registering for test daemon availability notify post.
+2026-11-12 11:14:19.073 Df DropFill[14359:c982] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-11-12 11:14:19.074 Df DropFill[14359:c982] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-11-12 11:14:19.075 Df DropFill[14359:c982] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-11-12 11:14:19.167 Df DropFill[14359:c982] [com.apple.BoardServices:XPCErrors] [C:2] Alloc com.apple.backboard.hid-services.xpc
+2026-11-12 11:14:19.175 Df DropFill[14359:c982] [com.apple.BacklightServices:scenes] 0x103432fd0 setDelegate:<0x103433030 _UIBacklightEnvironment> hasDelegate:YES for environment:sceneID:com.hyuk.dropfill-default
+2026-11-12 11:14:19.177 Df DropFill[14359:c982] [com.apple.UIKit:KeyWindow] Setting default evaluation strategy for UIUserInterfaceIdiomPhone to LastOneWins
+2026-11-12 11:14:19.178 Df DropFill[14359:c982] [com.apple.UIKit:KeyWindow] Scene target of keyboard event deferring environment did change: 1; scene: UIWindowScene: 0x102fd2eb0; scene identity: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.hyuk.dropfill-default
