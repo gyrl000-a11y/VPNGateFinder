@@ -156,11 +156,11 @@ struct SettingsView: View {
                 Section {
                     Toggle("자동입력", isOn: $s.autofillOn)
                     Toggle("담기 → 체크아웃 자동 진행", isOn: $s.autoCheckoutOn)
-                    Toggle("장바구니 약관 동의 자동 체크", isOn: $s.autoAgree)
+                    Toggle("필수 약관 동의 자동 체크", isOn: $s.autoAgree)
                         .accessibilityIdentifier("toggle.autoAgree")
                     Toggle("다시 열면 마지막 페이지에서 시작", isOn: $s.resumeLastPage)
                 } footer: {
-                    Text("최종 결제 버튼은 절대 누르지 않아요. 빨간 테두리로 표시만 합니다. 약관 동의는 장바구니의 필수 동의만 체크하고 마케팅·수신 동의는 건드리지 않아요. 대기열·캡차가 뜨면 진동과 알림으로 알려 주고, 그동안 화면이 꺼지지 않아요.")
+                    Text("최종 결제 버튼은 절대 누르지 않아요. 빨간 테두리로 표시만 합니다. 약관 동의는 장바구니·체크아웃의 필수 동의(이용약관, 14세 이상, 개인정보 수집 등)만 체크하고, 마케팅·수신 동의와 '전체 동의'는 건드리지 않아요. 대기열·캡차가 뜨면 진동과 알림으로 알려 주고, 그동안 화면이 꺼지지 않아요.")
                 }
 
                 Section("연락처") {
@@ -267,6 +267,12 @@ struct SettingsView: View {
                 Section {
                     field("생년월일", $s.card.birth, "예: 19900101", .numberPad, id: "birth")
                     field("개인통관고유부호", $s.card.customs, "예: P123456789012", .asciiCapable, id: "customs")
+                    LabeledContent("카드 비밀번호 앞 2자리") {
+                        SecureField("••", text: $s.card.pin2)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .accessibilityIdentifier("field.pin2")
+                    }
                 } header: {
                     Text("결제 옵션 (본인확인·통관)")
                 } footer: {
@@ -278,7 +284,7 @@ struct SettingsView: View {
                         if !s.card.birth.isEmpty && s.card.birthDigits.count != 8 {
                             Text("생년월일은 8자리로 적어 주세요 (예: 19900101).").foregroundStyle(.red)
                         }
-                        Text("Supreme 결제 옵션의 생년월일·개인통관고유부호 칸에 채워져요. 칸 모양에 맞춰 1990-01-01, 900101 같은 형식으로 바꿔 넣어요. 카드와 함께 기기 키체인에 저장돼요.")
+                        Text("Supreme 결제 옵션의 생년월일·카드 비밀번호 앞 2자리·개인통관고유부호 칸에 채워져요. 칸 모양에 맞춰 1990-01-01, 900101 같은 형식으로 바꿔 넣어요. 카드와 함께 기기 키체인에 저장돼요.")
                     }
                 }
 

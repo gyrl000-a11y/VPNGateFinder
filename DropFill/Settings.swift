@@ -80,11 +80,12 @@ struct CardInfo: Codable, Equatable {
     var cvc = ""
     var birth = ""      // 생년월일 8자리 (19900101)
     var customs = ""    // 개인통관고유부호 (P + 12자리)
+    var pin2 = ""       // 카드 비밀번호 앞 2자리
 
     init(number: String = "", name: String = "", month: String = "", year: String = "", cvc: String = "",
-         birth: String = "", customs: String = "") {
+         birth: String = "", customs: String = "", pin2: String = "") {
         self.number = number; self.name = name; self.month = month; self.year = year; self.cvc = cvc
-        self.birth = birth; self.customs = customs
+        self.birth = birth; self.customs = customs; self.pin2 = pin2
     }
 
     // 업데이트로 칸이 늘어도 예전에 저장된 값이 그대로 읽히도록
@@ -92,7 +93,7 @@ struct CardInfo: Codable, Equatable {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         func v(_ k: CodingKeys) -> String { (try? c.decodeIfPresent(String.self, forKey: k)) ?? "" }
         self.init(number: v(.number), name: v(.name), month: v(.month), year: v(.year), cvc: v(.cvc),
-                  birth: v(.birth), customs: v(.customs))
+                  birth: v(.birth), customs: v(.customs), pin2: v(.pin2))
     }
 
     var isEmpty: Bool { number.filter(\.isNumber).isEmpty }
@@ -100,8 +101,9 @@ struct CardInfo: Codable, Equatable {
 
     var birthDigits: String { birth.filter(\.isNumber) }
     var customsNormalized: String { customs.uppercased().filter { $0.isLetter || $0.isNumber } }
-    var hasIdentity: Bool { birthDigits.count == 8 || !customsNormalized.isEmpty }
-    var identityDict: [String: Any] { ["birth": birthDigits, "customs": customsNormalized] }
+    var pin2Digits: String { String(pin2.filter(\.isNumber).prefix(2)) }
+    var hasIdentity: Bool { birthDigits.count == 8 || !customsNormalized.isEmpty || pin2Digits.count == 2 }
+    var identityDict: [String: Any] { ["birth": birthDigits, "customs": customsNormalized, "pin2": pin2Digits] }
     var customsLooksValid: Bool { customsNormalized.range(of: #"^P[0-9]{12}$"#, options: .regularExpression) != nil }
 }
 

@@ -101,6 +101,50 @@ ${zone}
   await sleep(1300);
   check(t.msgs.filter(m=>m.type==='added').length===1, 'add detected via /cart.js count');
 
+  // 8b Palace 방식: 클릭하면 사이트가 상태를 뒤집고 체크 표시는 0.1초 뒤에 반영
+  t = mk(`<body><label><input type="checkbox" id="terms-checkbox"> 이용약관에 동의합니다 TERMS AND CONDITIONS</label><button name="checkout" id="co" disabled>CHECKOUT</button><input type="email" name="email" id="signup-email" autocomplete="email"><label><input type="checkbox" id="mailing-list-terms-checkbox"> 개인정보 수집·이용 및 광고성 정보 수신에 동의합니다</label></body>`, 'https://kr.palaceskateboards.com/cart', {enabled:true,autoCheckout:true,autoAgree:true,address:addr});
+  { const d=t.w.document, cb=d.getElementById('terms-checkbox'), co=d.getElementById('co'); let st=false;
+    cb.addEventListener('click', e => { e.preventDefault(); st=!st; setTimeout(()=>{ cb.checked=st; co.disabled=!st; }, 100); }); 
+    t.w.eval(AUTOFILL); await sleep(3500);
+    check(cb.checked === true && st === true && co.disabled === false, 'async checkbox: state and screen agree (checked='+cb.checked+', state='+st+')');
+    check(t.clicks.includes('CHECKOUT'), 'CHECKOUT clicked');
+    check(d.getElementById('signup-email').value === '', 'newsletter signup email untouched');
+    check(!d.getElementById('mailing-list-terms-checkbox').checked, 'ad consent untouched'); }
+
+  // 10 Supreme 체크아웃(진단 결과 그대로): 필수 동의 체크, 전체 동의·정보 저장 건드리지 않음,
+  //    통관부호 칸은 한 번에 넣으면 지워지고 한 글자씩 입력해야 받아들임, 카드 비밀번호 앞 2자리
+  t = mk(`<body>
+    <div id="grp">
+    <label><input type="checkbox" id="save_shipping_information" name="save_shipping_information"> save this information for next time</label>
+    <label><input type="checkbox" id="c0" name="custom-checkbox-0"> I am 14 years or older.</label>
+    <label><input type="checkbox" id="c1" name="custom-checkbox-1"> I accept the Global-e terms &amp; conditions</label>
+    <label><input type="checkbox" id="c2" name="custom-checkbox-2"> I accept the collection and use of my personal information</label>
+    <label><input type="checkbox" id="c3" name="custom-checkbox-3"> Accept all</label>
+    <label><input type="checkbox" id="tos" name="accept-tos"> I have read and agree to the Supreme Terms of Use</label>
+    </div>
+    <label for="dob">Date of birth (YYYY-MM-DD)</label><input id="extension-x--PaymentAdditionalField-Cards-PersonalCardDateOfBirth" autocomplete="on">
+    <label for="pin">PIN code first two digits</label><input id="extension-x--PaymentAdditionalField-Cards-PersonalCardPinCodeFirstTwoDigits" autocomplete="on">
+    <label for="pcc">Personal customs code</label><input id="pcc" name="Personal Customs Code" autocomplete="on">
+    <select name="phone_country_select"><option value="KR">+82</option><option value="US">+1</option></select>
+    <button type="submit">Pay now</button></body>`, 'https://shop.supreme.com/checkouts/cn/abc/en-kr',
+    {enabled:true,autoCheckout:true,autoAgree:true,address:addr,identity:{birth:'19900101',customs:'P123456789012',pin2:'12'}});
+  { const d=t.w.document;
+    d.querySelector('label[for=dob]').htmlFor = d.querySelector('[id$=DateOfBirth]').id;
+    d.querySelector('label[for=pin]').htmlFor = d.querySelector('[id$=FirstTwoDigits]').id;
+    // 통관부호: 한 글자씩 들어온 입력(data 길이 1)만 받아들이고, 아니면 곧바로 지움
+    const pcc = d.getElementById('pcc'); let typed = '';
+    pcc.addEventListener('input', e => { if (e.data && e.data.length === 1) typed += e.data; else setTimeout(() => { pcc.value = typed; }, 30); });
+    // 체크박스는 사이트가 늦게 반영
+    ['c0','c1','c2','tos'].forEach(id => { const cb=d.getElementById(id); let st=false; cb.addEventListener('click', e => { e.preventDefault(); st=!st; setTimeout(()=>{ cb.checked=st; }, 80); }); });
+    t.w.eval(AUTOFILL); await sleep(5000);
+    check(['c0','c1','c2','tos'].every(id => d.getElementById(id).checked), 'Supreme required agreements checked');
+    check(!d.getElementById('c3').checked && !d.getElementById('save_shipping_information').checked, '"Accept all" and "save info" untouched');
+    check(d.querySelector('[id$=DateOfBirth]').value === '1990-01-01', 'DOB yyyy-mm-dd: ' + d.querySelector('[id$=DateOfBirth]').value);
+    check(d.querySelector('[id$=FirstTwoDigits]').value === '12', 'PIN first two digits');
+    check(pcc.value === 'P123456789012', 'customs code accepted via per-char typing: ' + pcc.value);
+    check(d.querySelector('[name=phone_country_select]').value === 'KR', 'phone country select untouched');
+    check(!t.clicks.some(c => /pay now/i.test(c)), 'pay button not clicked'); }
+
   // 8 cart page: 필수 약관만 체크하고 체크아웃
   t = mk(`<body><label><input type="checkbox" id="terms"> 이용약관에 동의합니다</label><label><input type="checkbox" id="mkt"> 마케팅 수신 동의</label><button name="checkout" id="co" disabled>체크아웃</button></body>`, 'https://kr.palaceskateboards.com/cart', {enabled:true,autoCheckout:true,autoAgree:true,address:addr});
   t.w.document.getElementById('terms').addEventListener('change', e => { t.w.document.getElementById('co').disabled = !e.target.checked; });

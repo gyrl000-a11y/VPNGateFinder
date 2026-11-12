@@ -22,9 +22,10 @@ enum Scripts {
   var CART_CHECKOUT_RE = /체크\s*아웃|check\s*out|결제\s*하기|주문\s*하기|구매\s*하기/i;
   var EXPRESS_RE = /shop\s*pay|apple|google|paypal|kakao|naver|카카오|네이버|페이코|toss|토스/i;
   // 장바구니 약관 동의 체크 (마케팅·수신 동의는 건드리지 않음)
-  var AGREE_RE = /동의|agree|terms|약관|conditions|accept/i;
-  var AGREE_SKIP_RE = /마케팅|광고|newsletter|뉴스레터|sms|문자|수신|marketing|subscribe|promotion|혜택|이벤트/i;
-  var SKIP_RE = /discount|reduction|gift|coupon|promo|할인|쿠폰|기프트|search|검색|newsletter|password|비밀번호|company|회사/i;
+  var AGREE_RE = /동의|agree|terms|약관|conditions|accept|years\s*or\s*older|14\s*세\s*이상|만\s*14/i;
+  // 마케팅·수신 동의, '전체 동의'(다른 체크를 한꺼번에 뒤집을 수 있음), 정보 저장 체크는 건드리지 않음
+  var AGREE_SKIP_RE = /마케팅|광고|newsletter|뉴스레터|sms|문자|수신|marketing|subscribe|promotion|혜택|이벤트|accept\s*all|agree\s*to\s*all|select\s*all|전체\s*동의|모두\s*동의|save\s*this|저장/i;
+  var SKIP_RE = /discount|reduction|gift|coupon|promo|할인|쿠폰|기프트|search|검색|newsletter|뉴스레터|sign-?up|subscribe|mailing|구독|password|비밀번호|company|회사/i;
 
   var KR_REGIONS = [
     ['서울', 'KR-11', 'seoul'], ['부산', 'KR-26', 'busan'], ['대구', 'KR-27', 'daegu'],
@@ -90,6 +91,7 @@ enum Scripts {
 
   var cfg = null;
   var touched = new WeakSet();
+  var fillCount = new WeakMap();
   var clicked = {};
   var payMarked = null;
   var started = Date.now();
@@ -136,9 +138,16 @@ enum Scripts {
     return k;
   }
 
+  var PIN2_NAME_RE = /pin.?code.?first|first.?two.?digits|card.?pw.?2|cardpin2/;
+  var PIN2_LABEL_RE = /pin\s*code\s*first\s*two|비밀번호\s*앞\s*(2|두)|앞\s*2\s*자리/i;
+  var SKIP_KEY_RE = /phone.?country|phone.?code|dial.?code/;   // 전화 국가번호 선택칸 (배송 국가칸 countryCode 와 구분)
+
   function computeKey(el) {
     var nameId = ((el.getAttribute('name') || '') + ' ' + (el.id || '')).toLowerCase();
     var label = labelText(el);
+    // 카드 비밀번호 앞 2자리는 'password' 제외 규칙보다 먼저 확인
+    if (PIN2_NAME_RE.test(nameId) || PIN2_LABEL_RE.test(label)) return 'pin2';
+    if (SKIP_KEY_RE.test(nameId)) return null;
     if (SKIP_RE.test(nameId) || SKIP_RE.test(label)) return null;
 
     var ac = (el.getAttribute('autocomplete') || '').toLowerCase().split(/\s+/).filter(Boolean);
@@ -156,7 +165,7 @@ enum Scripts {
   }
 
   function isCardKey(k) { return k.indexOf('cc') === 0; }
-  function isIdKey(k) { return k === 'birth' || k === 'customs'; }
+  function isIdKey(k) { return k === 'birth' || k === 'customs' || k === 'pin2'; }
   function allowedKey(k) {
     if (isCardKey(k)) return !!cfg.card;
     if (isIdKey(k)) return !!cfg.identity;
@@ -212,6 +221,7 @@ enum Scripts {
       case 'ccCsc': return c.cvc;
       case 'birth': return cfg.identity ? birthFor(el, cfg.identity.birth) : null;
       case 'customs': return cfg.identity && cfg.identity.customs ? String(cfg.identity.customs).toUpperCase() : null;
+      case 'pin2': return cfg.identity && cfg.identity.pin2 ? String(cfg.identity.pin2).replace(/\D/g, '').slice(0, 2) : null;
     }
     return null;
   }
@@ -256,11 +266,39 @@ enum Scripts {
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
+  function leave(el) {
+    if (document.activeElement === el) { try { el.blur(); } catch (e) {} }
+    else {
+      el.dispatchEvent(new FocusEvent('blur'));
+      el.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+    }
+  }
+
   function setText(el, v) {
     try { el.focus({ preventScroll: true }); } catch (e) {}
     (el.tagName === 'TEXTAREA' ? areaSetter : inputSetter).call(el, v);
-    fire(el);
-    try { el.blur(); } catch (e) {}
+    try { el.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: v })); }
+    catch (e) { el.dispatchEvent(new Event('input', { bubbles: true })); }
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    leave(el);
+  }
+
+  // 한 번에 넣은 값을 사이트가 지워 버리는 칸(결제 옵션 확장 칸 등)은 한 글자씩 입력
+  function typeText(el, v) {
+    var setter = el.tagName === 'TEXTAREA' ? areaSetter : inputSetter;
+    try { el.focus({ preventScroll: true }); } catch (e) {}
+    setter.call(el, '');
+    for (var i = 0; i < v.length; i++) {
+      var ch = v.charAt(i);
+      el.dispatchEvent(new KeyboardEvent('keydown', { key: ch, bubbles: true }));
+      try { el.dispatchEvent(new InputEvent('beforeinput', { bubbles: true, cancelable: true, inputType: 'insertText', data: ch })); } catch (e) {}
+      setter.call(el, el.value + ch);
+      try { el.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: ch })); }
+      catch (e) { el.dispatchEvent(new Event('input', { bubbles: true })); }
+      el.dispatchEvent(new KeyboardEvent('keyup', { key: ch, bubbles: true }));
+    }
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+    leave(el);
   }
 
   function setSelect(el, cands) {
@@ -295,7 +333,10 @@ enum Scripts {
         if (setSelect(e, selectCandidates(key2, v))) filled++;
         if (key2 === 'country' && filled) break; // 다시 그려질 때까지 기다림
       } else if (key2 !== 'country' && !e.value) {
-        setText(e, v);
+        var tries = fillCount.get(e) || 0;
+        if (tries >= 5) continue;                 // 계속 지워지면 포기 (무한 반복 방지)
+        fillCount.set(e, tries + 1);
+        if (tries === 0) setText(e, v); else typeText(e, v);
         filled++;
       }
     }
@@ -334,19 +375,29 @@ enum Scripts {
     return false;
   }
 
+  // 체크박스마다 '한 번 누르고 기다렸다가 확인'. 사이트가 체크 표시를 늦게 바꾸는 경우가 있어
+  // 바로 다시 누르거나 checked 를 강제로 켜면 사이트 내부 상태와 화면이 반대가 된다 (Palace 장바구니).
+  var agreeTried = {};
   function checkAgreements() {
     var boxes = document.querySelectorAll('input[type="checkbox"]');
-    var n = 0;
+    var n = 0, now = Date.now();
     for (var i = 0; i < boxes.length; i++) {
       var cb = boxes[i];
       if (cb.checked || cb.disabled || touched.has(cb)) continue;
-      var box = cb.closest('label, li, p, div');
-      var t = labelText(cb) + ' ' + (box ? (box.innerText || box.textContent || '') : '');
+      // 자기 라벨을 우선 사용 (묶음 전체 글자를 보면 '전체 동의' 같은 옆 문구가 섞임)
+      var t = labelText(cb);
+      if (!t) {
+        var box = cb.closest('label, li, p, div');
+        t = box ? (box.innerText || box.textContent || '') : '';
+      }
       t = t.slice(0, 300);
       if (!AGREE_RE.test(t) || AGREE_SKIP_RE.test(t)) continue;
-      cb.click();
-      if (!cb.checked && cb.labels && cb.labels[0]) cb.labels[0].click();
-      if (!cb.checked) { cb.checked = true; fire(cb); }
+      var k = location.pathname + '|' + (cb.id || cb.name || t.slice(0, 40));
+      var st = agreeTried[k] || { n: 0, at: 0 };
+      if (st.n >= 2 || now - st.at < 900) continue;      // 최대 2번, 시도 사이 0.9초 대기
+      st.n += 1; st.at = now; agreeTried[k] = st;
+      if (st.n === 1) cb.click();
+      else { var lb = cb.labels && cb.labels[0]; (lb || cb).click(); }  // 첫 시도가 안 먹힌 경우만
       n++;
     }
     if (n) post({ type: 'log', msg: '약관 동의 체크' });
@@ -383,6 +434,7 @@ enum Scripts {
     var onCheckout = /checkout/i.test(path);
     if (cfg.autoCheckout && onCart) clickCartCheckout();
     if (onCheckout) {
+      if (cfg.autoAgree) checkAgreements();   // 체크아웃의 필수 동의(약관·14세 이상 등)
       if (cfg.autoCheckout) tryContinue();
       markPay();
     }
@@ -433,6 +485,7 @@ enum Scripts {
         'label=' + labelText(el).slice(0, 50),
         'key=' + (key || '-'),
         (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? 'checked' : 'unchecked') : (el.value ? 'filled' : 'empty'),
+        fillCount.get(el) ? 'tries=' + fillCount.get(el) : '',
         visible(el) ? '' : 'hidden'
       ].join(' | '));
     }

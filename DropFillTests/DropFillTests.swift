@@ -21,7 +21,7 @@ final class DropFillTests: XCTestCase {
                             lastNameEn: "KIM", firstNameEn: "HYUK", cityEn: "Bupyeong-gu",
                             address1En: "1, Sangok-ro", address2En: "101-dong 1001-ho")
         s.card = CardInfo(number: "4111 1111 1111 1111", name: "HYUK KIM", month: "7", year: "2029", cvc: "123",
-                          birth: "19900101", customs: "p123456789012")
+                          birth: "19900101", customs: "p123456789012", pin2: "12")
         s.autoAgree = true
         s.diagMode = false
     }
@@ -276,10 +276,18 @@ final class DropFillTests: XCTestCase {
         let m = makeModel(.palace)
         let html = """
         <html><body>
-        <label><input type="checkbox" id="terms" onchange="document.getElementById('co').disabled=!this.checked">
-          이용약관 및 개인정보 수집·이용에 동의합니다 (필수)</label>
-        <label><input type="checkbox" id="mkt"> 마케팅 정보 수신에 동의합니다 (선택)</label>
-        <button name="checkout" id="co" disabled onclick="window.__co=true">결제하기</button>
+        <label><input type="checkbox" id="terms"> 이용약관에 동의합니다 TERMS AND CONDITIONS</label>
+        <label><input type="checkbox" id="mkt"> 개인정보 수집·이용 및 광고성 정보 수신에 동의합니다</label>
+        <input type="email" name="email" id="signup-email" autocomplete="email">
+        <button name="checkout" id="co" disabled onclick="window.__co=true">CHECKOUT</button>
+        <script>
+          // Palace처럼: 클릭하면 내부 상태를 뒤집고, 체크 표시·버튼은 0.15초 뒤에 반영
+          var st = false, cb = document.getElementById('terms'), co = document.getElementById('co');
+          cb.addEventListener('click', function (e) {
+            e.preventDefault(); st = !st;
+            setTimeout(function () { cb.checked = st; co.disabled = !st; window.__st = st; }, 150);
+          });
+        </script>
         </body></html>
         """
         load(m, html, "https://kr.palaceskateboards.com/cart")
@@ -287,8 +295,59 @@ final class DropFillTests: XCTestCase {
         XCTAssertTrue(ok, "checkout not clicked after agreeing")
         let terms = await js(m, "document.getElementById('terms').checked") as? Bool
         let mkt = await js(m, "document.getElementById('mkt').checked") as? Bool
+        let state = await js(m, "window.__st === true") as? Bool
+        let signup = await value(m, "email")
         XCTAssertEqual(terms, true)
-        XCTAssertEqual(mkt, false, "marketing consent must stay unchecked")
+        XCTAssertEqual(state, true, "site state must match the checked box")
+        XCTAssertEqual(mkt, false, "ad consent must stay unchecked")
+        XCTAssertEqual(signup, "", "newsletter signup email must stay empty")
+    }
+
+    // 13b. Supreme 체크아웃 결제 옵션 (실제 진단 결과를 본뜬 화면)
+    func testSupremeCheckoutOptions() async {
+        let m = makeModel(.supreme)
+        let html = """
+        <html><body>
+        <label><input type="checkbox" id="save" name="save_shipping_information"> save this information for next time</label>
+        <label><input type="checkbox" id="c0" name="custom-checkbox-0"> I am 14 years or older.</label>
+        <label><input type="checkbox" id="c1" name="custom-checkbox-1"> I accept the Global-e terms &amp; conditions</label>
+        <label><input type="checkbox" id="c2" name="custom-checkbox-2"> I accept the collection and use of my personal information</label>
+        <label><input type="checkbox" id="c3" name="custom-checkbox-3"> Accept all</label>
+        <label><input type="checkbox" id="tos" name="accept-tos"> I have read and agree to the Supreme Terms of Use</label>
+        <label for="dob">Date of birth (YYYY-MM-DD)</label>
+        <input id="dob" name="x-PaymentAdditionalField-Cards-PersonalCardDateOfBirth" autocomplete="on">
+        <label for="pin">PIN code first two digits</label>
+        <input id="pin" name="x-PaymentAdditionalField-Cards-PersonalCardPinCodeFirstTwoDigits" autocomplete="on">
+        <label for="pcc">Personal customs code</label><input id="pcc" name="Personal Customs Code" autocomplete="on">
+        <button id="pay" onclick="window.__paid=true">Pay now</button>
+        <script>
+          // 통관부호 칸: 한 번에 들어온 값은 지우고, 한 글자씩 입력된 것만 받아들임
+          var pcc = document.getElementById('pcc'), typed = '';
+          pcc.addEventListener('input', function (e) {
+            if (e.data && e.data.length === 1) typed += e.data;
+            else setTimeout(function () { pcc.value = typed; }, 30);
+          });
+          ['c0','c1','c2','tos'].forEach(function (id) {
+            var cb = document.getElementById(id), st = false;
+            cb.addEventListener('click', function (e) { e.preventDefault(); st = !st; setTimeout(function () { cb.checked = st; }, 100); });
+          });
+        </script></body></html>
+        """
+        load(m, html, "https://shop.supreme.com/checkouts/cn/test/en-kr")
+        let ok = await wait { await self.value(m, "Personal Customs Code") == "P123456789012" }
+        XCTAssertTrue(ok, "customs code not accepted")
+        let agreed = await wait {
+            (await self.js(m, "['c0','c1','c2','tos'].every(function(i){return document.getElementById(i).checked})") as? Bool) == true
+        }
+        XCTAssertTrue(agreed, "required agreements not checked")
+        let untouched = await js(m, "!document.getElementById('c3').checked && !document.getElementById('save').checked") as? Bool
+        XCTAssertEqual(untouched, true, "'Accept all' / 'save info' must stay unchecked")
+        let dob = await js(m, "document.getElementById('dob').value") as? String
+        let pin = await js(m, "document.getElementById('pin').value") as? String
+        XCTAssertEqual(dob, "1990-01-01")
+        XCTAssertEqual(pin, "12")
+        let paid = await js(m, "window.__paid === true") as? Bool
+        XCTAssertEqual(paid, false, "pay button must never be clicked")
     }
 
     // 14. 진단 모드: 모르는 사이트라도 칸 목록을 수집 (입력값은 제외)
