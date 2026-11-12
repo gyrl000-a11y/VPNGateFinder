@@ -71,15 +71,38 @@ struct Profile: Codable, Equatable {
     }
 }
 
+/// 카드 + 결제 옵션의 본인확인 정보(생년월일·개인통관고유부호). 기기 키체인에 저장.
 struct CardInfo: Codable, Equatable {
     var number = ""
     var name = ""
     var month = ""
     var year = ""
     var cvc = ""
+    var birth = ""      // 생년월일 8자리 (19900101)
+    var customs = ""    // 개인통관고유부호 (P + 12자리)
+
+    init(number: String = "", name: String = "", month: String = "", year: String = "", cvc: String = "",
+         birth: String = "", customs: String = "") {
+        self.number = number; self.name = name; self.month = month; self.year = year; self.cvc = cvc
+        self.birth = birth; self.customs = customs
+    }
+
+    // 업데이트로 칸이 늘어도 예전에 저장된 값이 그대로 읽히도록
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        func v(_ k: CodingKeys) -> String { (try? c.decodeIfPresent(String.self, forKey: k)) ?? "" }
+        self.init(number: v(.number), name: v(.name), month: v(.month), year: v(.year), cvc: v(.cvc),
+                  birth: v(.birth), customs: v(.customs))
+    }
 
     var isEmpty: Bool { number.filter(\.isNumber).isEmpty }
     var dict: [String: Any] { ["number": number, "name": name, "month": month, "year": year, "cvc": cvc] }
+
+    var birthDigits: String { birth.filter(\.isNumber) }
+    var customsNormalized: String { customs.uppercased().filter { $0.isLetter || $0.isNumber } }
+    var hasIdentity: Bool { birthDigits.count == 8 || !customsNormalized.isEmpty }
+    var identityDict: [String: Any] { ["birth": birthDigits, "customs": customsNormalized] }
+    var customsLooksValid: Bool { customsNormalized.range(of: #"^P[0-9]{12}$"#, options: .regularExpression) != nil }
 }
 
 /// 매주 드랍 알림: weekday 1=일 … 7=토, minutes = 자정부터 분
@@ -87,6 +110,17 @@ struct DropAlarmSetting: Codable, Equatable {
     var enabled = false
     var weekday = 7
     var minutes = 11 * 60
+
+    init(enabled: Bool = false, weekday: Int = 7, minutes: Int = 11 * 60) {
+        self.enabled = enabled; self.weekday = weekday; self.minutes = minutes
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(enabled: (try? c.decodeIfPresent(Bool.self, forKey: .enabled)) ?? false,
+                  weekday: (try? c.decodeIfPresent(Int.self, forKey: .weekday)) ?? 7,
+                  minutes: (try? c.decodeIfPresent(Int.self, forKey: .minutes)) ?? 11 * 60)
+    }
 }
 
 enum Site: String, CaseIterable, Identifiable {
@@ -139,6 +173,8 @@ final class SettingsStore: ObservableObject {
     @Published var supremeHome: String { didSet { ud.set(supremeHome, forKey: "home.supreme") } }
     @Published var palaceHome: String { didSet { ud.set(palaceHome, forKey: "home.palace") } }
     @Published var extraCardHosts: String { didSet { ud.set(extraCardHosts, forKey: "extraCardHosts") } }
+    @Published var autoAgree: Bool { didSet { ud.set(autoAgree, forKey: "autoAgree") } }
+    @Published var diagMode: Bool { didSet { ud.set(diagMode, forKey: "diagMode") } }
     @Published var supremeLang: AddressLang { didSet { ud.set(supremeLang.rawValue, forKey: "lang.supreme") } }
     @Published var palaceLang: AddressLang { didSet { ud.set(palaceLang.rawValue, forKey: "lang.palace") } }
     @Published var resumeLastPage: Bool { didSet { ud.set(resumeLastPage, forKey: "resumeLastPage") } }
@@ -170,6 +206,8 @@ final class SettingsStore: ObservableObject {
             d.removeObject(forKey: "last.palace")
         }
         extraCardHosts = d.string(forKey: "extraCardHosts") ?? ""
+        autoAgree = d.object(forKey: "autoAgree") as? Bool ?? true
+        diagMode = d.object(forKey: "diagMode") as? Bool ?? false
         supremeLang = AddressLang(rawValue: d.string(forKey: "lang.supreme") ?? "") ?? .en
         palaceLang = AddressLang(rawValue: d.string(forKey: "lang.palace") ?? "") ?? .ko
         resumeLastPage = d.object(forKey: "resumeLastPage") as? Bool ?? true
@@ -214,12 +252,16 @@ final class SettingsStore: ObservableObject {
     /// 프레임 출처(host)에 따라 넘겨줄 정보를 고른다. 쇼핑몰 도메인엔 주소, 결제 도메인엔 카드만.
     /// site: 요청이 온 탭 — 그 사이트에 맞는 언어(한글/영문)의 배송지를 넘긴다
     func config(forHost host: String, site: Site = .supreme) -> [String: Any] {
-        guard autofillOn, !host.isEmpty else { return ["enabled": false] }
-        var d: [String: Any] = ["enabled": true, "autoCheckout": autoCheckoutOn]
+        guard !host.isEmpty else { return ["enabled": false] }
+        guard autofillOn else { return ["enabled": false, "diag": diagMode] }
+        var d: [String: Any] = ["enabled": true, "autoCheckout": autoCheckoutOn, "autoAgree": autoAgree,
+                                "diag": diagMode]
         let shop = isShopHost(host)
+        let cardHost = isCardHost(host)
         if shop { d["address"] = profile.dict(lang(for: site)) }
-        if (shop || isCardHost(host)) && !card.isEmpty { d["card"] = card.dict }
-        if d["address"] == nil && d["card"] == nil { d["enabled"] = false }
+        if (shop || cardHost) && !card.isEmpty { d["card"] = card.dict }
+        if (shop || cardHost) && card.hasIdentity { d["identity"] = card.identityDict }
+        if d["address"] == nil && d["card"] == nil && d["identity"] == nil { d["enabled"] = false }
         return d
     }
 

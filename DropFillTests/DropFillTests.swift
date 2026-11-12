@@ -20,7 +20,10 @@ final class DropFillTests: XCTestCase {
                             address1: "산곡로 1", address2: "101동 1001호",
                             lastNameEn: "KIM", firstNameEn: "HYUK", cityEn: "Bupyeong-gu",
                             address1En: "1, Sangok-ro", address2En: "101-dong 1001-ho")
-        s.card = CardInfo(number: "4111 1111 1111 1111", name: "HYUK KIM", month: "7", year: "2029", cvc: "123")
+        s.card = CardInfo(number: "4111 1111 1111 1111", name: "HYUK KIM", month: "7", year: "2029", cvc: "123",
+                          birth: "19900101", customs: "p123456789012")
+        s.autoAgree = true
+        s.diagMode = false
     }
 
     private func makeModel(_ site: Site = .palace) -> BrowserModel {
@@ -241,6 +244,76 @@ final class DropFillTests: XCTestCase {
         let p = try JSONDecoder().decode(Profile.self, from: Data(old.utf8))
         XCTAssertEqual(p.address2, "101동 1001호")
         XCTAssertEqual(p.address1En, "")
+    }
+
+    // 12. Supreme 결제 옵션: 생년월일·개인통관고유부호
+    func testIdentityFields() async {
+        let m = makeModel(.supreme)
+        let html = """
+        <html><body>
+        <label for="b8">생년월일 (8자리)</label><input id="b8" name="birth8" maxlength="8">
+        <label for="b6">생년월일 6자리</label><input id="b6" name="custom_b6" maxlength="6">
+        <label for="bd">Date of birth</label><input id="bd" name="dob" type="date">
+        <label for="pc">개인통관고유부호</label><input id="pc" name="pccc">
+        <label for="dc">할인 코드</label><input id="dc" name="reductions">
+        </body></html>
+        """
+        load(m, html, "https://kr.supreme.com/checkouts/cn/id")
+        let ok = await wait { await self.value(m, "pccc") == "P123456789012" }
+        XCTAssertTrue(ok, "customs code not filled")
+        let b8 = await value(m, "birth8")
+        let b6 = await value(m, "custom_b6")
+        let bd = await value(m, "dob")
+        let dc = await value(m, "reductions")
+        XCTAssertEqual(b8, "19900101")
+        XCTAssertEqual(b6, "900101")
+        XCTAssertEqual(bd, "1990-01-01")
+        XCTAssertEqual(dc, "")
+    }
+
+    // 13. Palace 장바구니: 필수 약관만 체크 → 체크아웃 버튼 자동 클릭
+    func testCartAgreeThenCheckout() async {
+        let m = makeModel(.palace)
+        let html = """
+        <html><body>
+        <label><input type="checkbox" id="terms" onchange="document.getElementById('co').disabled=!this.checked">
+          이용약관 및 개인정보 수집·이용에 동의합니다 (필수)</label>
+        <label><input type="checkbox" id="mkt"> 마케팅 정보 수신에 동의합니다 (선택)</label>
+        <button name="checkout" id="co" disabled onclick="window.__co=true">결제하기</button>
+        </body></html>
+        """
+        load(m, html, "https://kr.palaceskateboards.com/cart")
+        let ok = await wait { (await self.js(m, "window.__co === true") as? Bool) == true }
+        XCTAssertTrue(ok, "checkout not clicked after agreeing")
+        let terms = await js(m, "document.getElementById('terms').checked") as? Bool
+        let mkt = await js(m, "document.getElementById('mkt').checked") as? Bool
+        XCTAssertEqual(terms, true)
+        XCTAssertEqual(mkt, false, "marketing consent must stay unchecked")
+    }
+
+    // 14. 진단 모드: 모르는 사이트라도 칸 목록을 수집 (입력값은 제외)
+    func testDiagnostics() async {
+        SettingsStore.shared.diagMode = true
+        defer { SettingsStore.shared.diagMode = false }
+        let m = makeModel(.supreme)
+        load(m, "<html><body><label for='x'>생년월일</label><input id='x' name='bd' value='secret'><button>결제하기</button></body></html>",
+             "https://pay.example.com/form")
+        let ok = await wait { !m.diag.isEmpty }
+        XCTAssertTrue(ok, "no diagnostics collected")
+        XCTAssertTrue(m.diagText.contains("name=bd"))
+        XCTAssertTrue(m.diagText.contains("key=birth"))
+        XCTAssertFalse(m.diagText.contains("secret"), "values must not be included")
+    }
+
+    // 15. 업데이트 전 저장된 카드 정보(새 칸 없음)도 그대로 읽힘
+    func testOldCardStillDecodes() throws {
+        let old = #"{"number":"4111","name":"A","month":"7","year":"29","cvc":"1"}"#
+        let c = try JSONDecoder().decode(CardInfo.self, from: Data(old.utf8))
+        XCTAssertEqual(c.number, "4111")
+        XCTAssertEqual(c.birth, "")
+        let a = try JSONDecoder().decode(DropAlarmSetting.self, from: Data(#"{"enabled":true}"#.utf8))
+        XCTAssertTrue(a.enabled)
+        XCTAssertEqual(a.minutes, 11 * 60)
     }
 
     // 7. 설정: 허용 규칙

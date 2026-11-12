@@ -14,6 +14,11 @@ final class BrowserModel: NSObject, ObservableObject {
     @Published var toast: String?
     @Published var gate: Gate = .none
     @Published var gateInfo = ""
+    /// 진단 모드: 프레임(주소)별 입력칸 목록
+    @Published var diag: [String: String] = [:]
+    var diagText: String {
+        diag.sorted { $0.key < $1.key }.map { "### \($0.key)\n\($0.value)" }.joined(separator: "\n\n")
+    }
 
     private var popup: WKWebView?
     private var popupHolder: UIView?
@@ -72,6 +77,8 @@ final class BrowserModel: NSObject, ObservableObject {
     }
 
     // MARK: actions
+
+    func clearDiag() { diag = [:] }
 
     func goHome() { webView.load(URLRequest(url: SettingsStore.shared.home(for: site))) }
     func goBack() { webView.goBack() }
@@ -359,6 +366,12 @@ final class MessageRouter: NSObject, WKScriptMessageHandler, WKScriptMessageHand
         case "gate":
             if message.frameInfo.isMainFrame, let k = body["kind"] as? String, let g = Gate(rawValue: k) {
                 owner?.handleGate(g, info: body["info"] as? String ?? "")
+            }
+        case "diag":
+            if let snap = body["snapshot"] as? String {
+                let url = body["url"] as? String ?? host
+                let top = body["top"] as? Bool ?? false
+                owner?.diag[(top ? "[main] " : "[frame] ") + url] = snap
             }
         case "ready":
             owner?.showToast("준비 완료 · 빨간 테두리 결제 버튼만 누르세요", seconds: 3)

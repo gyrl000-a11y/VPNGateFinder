@@ -18,6 +18,9 @@
   // 장바구니 페이지의 체크아웃 버튼
   var CART_CHECKOUT_RE = /체크\s*아웃|check\s*out|결제\s*하기|주문\s*하기|구매\s*하기/i;
   var EXPRESS_RE = /shop\s*pay|apple|google|paypal|kakao|naver|카카오|네이버|페이코|toss|토스/i;
+  // 장바구니 약관 동의 체크 (마케팅·수신 동의는 건드리지 않음)
+  var AGREE_RE = /동의|agree|terms|약관|conditions|accept/i;
+  var AGREE_SKIP_RE = /마케팅|광고|newsletter|뉴스레터|sms|문자|수신|marketing|subscribe|promotion|혜택|이벤트/i;
   var SKIP_RE = /discount|reduction|gift|coupon|promo|할인|쿠폰|기프트|search|검색|newsletter|password|비밀번호|company|회사/i;
 
   var KR_REGIONS = [
@@ -46,6 +49,8 @@
   var CARD_FRAME_NAMES = { 'number': 'ccNumber', 'name': 'ccName', 'expiry': 'ccExp', 'verification_value': 'ccCsc' };
 
   var NAME_RULES = [
+    ['customs', /pccc|customs|clearance|tongwan|personal.?code/],
+    ['birth', /birth|dob|birthday/],
     ['ccNumber', /card.?number|cc.?num|cardno/],
     ['ccCsc', /cvv|cvc|csc|verification|security.?code/],
     ['ccExp', /expiry|exp.?date|expiration/],
@@ -63,6 +68,8 @@
   ];
 
   var LABEL_RULES = [
+    ['customs', /개인\s*통관|통관\s*고유|통관\s*번호|customs|clearance\s*code|pccc/i],
+    ['birth', /생년\s*월일|생일|date\s*of\s*birth|birth\s*date|birthday/i],
     ['ccNumber', /카드\s*번호|card\s*number/i],
     ['ccCsc', /보안\s*코드|cvc|cvv|security\s*code/i],
     ['ccExp', /유효\s*기간|만료|expir/i],
@@ -146,6 +153,29 @@
   }
 
   function isCardKey(k) { return k.indexOf('cc') === 0; }
+  function isIdKey(k) { return k === 'birth' || k === 'customs'; }
+  function allowedKey(k) {
+    if (isCardKey(k)) return !!cfg.card;
+    if (isIdKey(k)) return !!cfg.identity;
+    return !!cfg.address;
+  }
+
+  // 생년월일 형식은 칸 모양을 보고 맞춘다 (date 입력, 6/8자리, 구분자)
+  function birthFor(el, d) {
+    d = String(d || '').replace(/\D/g, '');
+    if (d.length !== 8) return null;
+    var y = d.slice(0, 4), m = d.slice(4, 6), dd = d.slice(6, 8);
+    if ((el.type || '').toLowerCase() === 'date') return y + '-' + m + '-' + dd;
+    var hint = (el.getAttribute('placeholder') || '') + ' ' + labelText(el);
+    if (el.maxLength === 6 || /6\s*자리|yymmdd/i.test(hint)) return d.slice(2);
+    if (el.maxLength === 8 || /8\s*자리|yyyymmdd/i.test(hint)) return d;
+    if (/\d{4}-\d{2}-\d{2}|yyyy-mm-dd/i.test(hint)) return y + '-' + m + '-' + dd;
+    if (/\d{4}\.\d{2}\.\d{2}|yyyy\.mm\.dd/i.test(hint)) return y + '.' + m + '.' + dd;
+    if (/\d{4}\/\d{2}\/\d{2}|yyyy\/mm\/dd/i.test(hint)) return y + '/' + m + '/' + dd;
+    if (/mm\/dd\/yyyy/i.test(hint)) return m + '/' + dd + '/' + y;
+    if (el.maxLength === 10) return y + '-' + m + '-' + dd;
+    return d;
+  }
 
   function region(p) {
     for (var i = 0; i < KR_REGIONS.length; i++) if (String(p).indexOf(KR_REGIONS[i][0]) >= 0) return KR_REGIONS[i];
@@ -177,6 +207,8 @@
       case 'ccMonth': return c.month ? pad2(c.month) : null;
       case 'ccYear': return c.year ? String(c.year) : null;
       case 'ccCsc': return c.cvc;
+      case 'birth': return cfg.identity ? birthFor(el, cfg.identity.birth) : null;
+      case 'customs': return cfg.identity && cfg.identity.customs ? String(cfg.identity.customs).toUpperCase() : null;
     }
     return null;
   }
@@ -244,7 +276,7 @@
       if (touched.has(el) || !isFillable(el)) continue;
       var key = keyFor(el);
       if (!key) continue;
-      if (isCardKey(key) ? !cfg.card : !cfg.address) continue;
+      if (!allowedKey(key)) continue;
       list.push([el, key]);
     }
     // 국가를 먼저 맞춰야 주소 칸이 한국 형식으로 다시 그려진다
@@ -299,7 +331,27 @@
     return false;
   }
 
+  function checkAgreements() {
+    var boxes = document.querySelectorAll('input[type="checkbox"]');
+    var n = 0;
+    for (var i = 0; i < boxes.length; i++) {
+      var cb = boxes[i];
+      if (cb.checked || cb.disabled || touched.has(cb)) continue;
+      var box = cb.closest('label, li, p, div');
+      var t = labelText(cb) + ' ' + (box ? (box.innerText || box.textContent || '') : '');
+      t = t.slice(0, 300);
+      if (!AGREE_RE.test(t) || AGREE_SKIP_RE.test(t)) continue;
+      cb.click();
+      if (!cb.checked && cb.labels && cb.labels[0]) cb.labels[0].click();
+      if (!cb.checked) { cb.checked = true; fire(cb); }
+      n++;
+    }
+    if (n) post({ type: 'log', msg: '약관 동의 체크' });
+    return n;
+  }
+
   function clickCartCheckout() {
+    if (cfg.autoAgree) checkAgreements();
     var el = null;
     var named = document.querySelectorAll('button[name="checkout"], input[name="checkout"]');
     for (var i = 0; i < named.length; i++) if (visible(named[i])) { el = named[i]; break; }
@@ -360,8 +412,53 @@
     run();
   }
 
+  // 진단 모드: 이 화면의 입력칸·버튼 목록(값은 빼고)을 앱에 보냄 → 설정의 '진단 결과'에서 복사
+  function diagSnapshot() {
+    var out = [];
+    var els = document.querySelectorAll('input, select, textarea');
+    for (var i = 0; i < els.length && out.length < 60; i++) {
+      var el = els[i];
+      var t = (el.type || el.tagName).toLowerCase();
+      if (t === 'hidden') continue;
+      var key = null;
+      try { key = cfg.address || cfg.card || cfg.identity ? keyFor(el) : computeKey(el); } catch (e) {}
+      out.push([
+        el.tagName.toLowerCase() + (el.type ? ':' + el.type : ''),
+        'name=' + (el.getAttribute('name') || ''),
+        'id=' + (el.id || ''),
+        'ac=' + (el.getAttribute('autocomplete') || ''),
+        'label=' + labelText(el).slice(0, 50),
+        'key=' + (key || '-'),
+        (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? 'checked' : 'unchecked') : (el.value ? 'filled' : 'empty'),
+        visible(el) ? '' : 'hidden'
+      ].join(' | '));
+    }
+    var btns = [];
+    var bs = document.querySelectorAll('button, input[type="submit"], [role="button"]');
+    for (var j = 0; j < bs.length && btns.length < 25; j++) {
+      if (!visible(bs[j])) continue;
+      var tx = txt(bs[j]).slice(0, 40);
+      if (tx) btns.push(tx + (bs[j].disabled ? ' (disabled)' : ''));
+    }
+    return 'fields:\n' + out.join('\n') + '\nbuttons: ' + btns.join(' / ');
+  }
+
+  function startDiag() {
+    var last = '';
+    function tick() {
+      var snap;
+      try { snap = diagSnapshot(); } catch (e) { snap = 'diag error: ' + e.message; }
+      if (snap === last) return;
+      last = snap;
+      post({ type: 'diag', top: IS_TOP, url: location.href.split('?')[0], snapshot: snap });
+    }
+    setTimeout(tick, 1500);
+    setInterval(tick, 3000);
+  }
+
   H.postMessage({ type: 'config' }).then(function (c) {
-    cfg = c;
-    if (cfg && cfg.enabled) start();
+    cfg = c || {};
+    if (cfg.diag) startDiag();
+    if (cfg.enabled) start();
   }).catch(function () {});
 })();

@@ -87,6 +87,32 @@ ${zone}
   const added = t.msgs.filter(m=>m.type==='added');
   check(added.length===2 && added[1].checkoutUrl==='https://kr.supreme.com/cart/c/xyz', 'hook: 2 adds, empty cartCreate ignored, checkoutUrl found');
 
+  // 7 hook: 요청 감지 없이도 /cart.js 수량 변화로 담기 감지 (Palace 대비)
+  t = mk(`<body><button id="add">장바구니 담기</button><button id="wish">위시리스트</button></body>`, 'https://kr.palaceskateboards.com/products/x', {});
+  let count = 0;
+  t.w.fetch = async (u) => ({ ok: true, json: async () => ({ item_count: count }), clone(){ return this; } });
+  t.w.eval(HOOK);
+  await sleep(50);
+  t.w.document.getElementById('wish').click();
+  await sleep(1200);
+  check(!t.msgs.some(m=>m.type==='added'), 'non-add button ignored');
+  t.w.document.getElementById('add').click();
+  count = 1;
+  await sleep(1300);
+  check(t.msgs.filter(m=>m.type==='added').length===1, 'add detected via /cart.js count');
+
+  // 8 cart page: 필수 약관만 체크하고 체크아웃
+  t = mk(`<body><label><input type="checkbox" id="terms"> 이용약관에 동의합니다</label><label><input type="checkbox" id="mkt"> 마케팅 수신 동의</label><button name="checkout" id="co" disabled>체크아웃</button></body>`, 'https://kr.palaceskateboards.com/cart', {enabled:true,autoCheckout:true,autoAgree:true,address:addr});
+  t.w.document.getElementById('terms').addEventListener('change', e => { t.w.document.getElementById('co').disabled = !e.target.checked; });
+  t.w.eval(AUTOFILL); await sleep(1500);
+  check(t.w.document.getElementById('terms').checked && !t.w.document.getElementById('mkt').checked, 'terms checked, marketing untouched');
+  check(t.clicks.includes('체크아웃'), 'checkout clicked after agree');
+
+  // 9 identity fields
+  t = mk(`<body><label for="b">생년월일 (8자리)</label><input id="b" name="birth" maxlength="8"><label for="p">개인통관고유부호</label><input id="p" name="pccc"></body>`, 'https://kr.supreme.com/checkouts/cn/x', {enabled:true,autoCheckout:true,address:addr,identity:{birth:'19900101',customs:'P123456789012'}});
+  t.w.eval(AUTOFILL); await sleep(600);
+  check(t.w.document.getElementById('b').value==='19900101' && t.w.document.getElementById('p').value==='P123456789012', 'birth + customs filled');
+
   console.log(ok ? 'ALL PASS' : 'SOME FAILED');
   process.exit(ok ? 0 : 1);
 })();

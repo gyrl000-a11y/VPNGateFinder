@@ -73,6 +73,7 @@ struct WebContainer: UIViewRepresentable {
 struct BrowserScreen: View {
     @ObservedObject var model: BrowserModel
     @ObservedObject private var settings = SettingsStore.shared
+    @State private var showDiag = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -120,10 +121,17 @@ struct BrowserScreen: View {
                         .frame(maxWidth: .infinity)
                 }
                 bar("wand.and.stars") { model.refill() }
+                if settings.diagMode {
+                    bar("ladybug") { showDiag = true }
+                        .accessibilityIdentifier("diagButton")
+                }
             }
             .font(.system(size: 18))
             .frame(height: 44)
             .padding(.horizontal, 6)
+        }
+        .sheet(isPresented: $showDiag) {
+            DiagSheet(model: model)
         }
     }
 
@@ -148,9 +156,11 @@ struct SettingsView: View {
                 Section {
                     Toggle("자동입력", isOn: $s.autofillOn)
                     Toggle("담기 → 체크아웃 자동 진행", isOn: $s.autoCheckoutOn)
+                    Toggle("장바구니 약관 동의 자동 체크", isOn: $s.autoAgree)
+                        .accessibilityIdentifier("toggle.autoAgree")
                     Toggle("다시 열면 마지막 페이지에서 시작", isOn: $s.resumeLastPage)
                 } footer: {
-                    Text("최종 결제 버튼은 절대 누르지 않아요. 빨간 테두리로 표시만 합니다. 대기열·캡차가 뜨면 진동과 알림으로 알려 주고, 그동안 화면이 꺼지지 않아요.")
+                    Text("최종 결제 버튼은 절대 누르지 않아요. 빨간 테두리로 표시만 합니다. 약관 동의는 장바구니의 필수 동의만 체크하고 마케팅·수신 동의는 건드리지 않아요. 대기열·캡차가 뜨면 진동과 알림으로 알려 주고, 그동안 화면이 꺼지지 않아요.")
                 }
 
                 Section("연락처") {
@@ -255,6 +265,24 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    field("생년월일", $s.card.birth, "예: 19900101", .numberPad, id: "birth")
+                    field("개인통관고유부호", $s.card.customs, "예: P123456789012", .asciiCapable, id: "customs")
+                } header: {
+                    Text("결제 옵션 (본인확인·통관)")
+                } footer: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        if !s.card.customs.isEmpty && !s.card.customsLooksValid {
+                            Text("개인통관고유부호는 P로 시작하는 13자리예요 (P + 숫자 12개).")
+                                .foregroundStyle(.red)
+                        }
+                        if !s.card.birth.isEmpty && s.card.birthDigits.count != 8 {
+                            Text("생년월일은 8자리로 적어 주세요 (예: 19900101).").foregroundStyle(.red)
+                        }
+                        Text("Supreme 결제 옵션의 생년월일·개인통관고유부호 칸에 채워져요. 칸 모양에 맞춰 1990-01-01, 900101 같은 형식으로 바꿔 넣어요. 카드와 함께 기기 키체인에 저장돼요.")
+                    }
+                }
+
+                Section {
                     Toggle("대기 중 백그라운드 유지", isOn: $s.keepAliveInQueue)
                 } header: {
                     Text("대기열")
@@ -279,6 +307,14 @@ struct SettingsView: View {
                     Text("사이트")
                 } footer: {
                     Text("결제창이 다른 결제사 도메인이면 여기에 도메인을 넣어야 카드가 채워져요. 예: pay.example.com")
+                }
+                Section {
+                    Toggle("진단 모드", isOn: $s.diagMode)
+                        .accessibilityIdentifier("toggle.diag")
+                } header: {
+                    Text("문제 해결")
+                } footer: {
+                    Text("자동입력이 안 되는 칸이 있으면 켜고 그 화면을 다시 열어 보세요. 아래 툴바의 벌레 버튼에서 칸 목록(입력값은 빼고)을 복사해 보내 주면 인식 규칙을 고칠 수 있어요.")
                 }
             }
             .navigationTitle("드랍필 설정")
@@ -339,6 +375,37 @@ struct SettingsView: View {
                 .autocorrectionDisabled()
                 .multilineTextAlignment(.trailing)
                 .accessibilityIdentifier("field.\(id)")
+        }
+    }
+}
+
+struct DiagSheet: View {
+    @ObservedObject var model: BrowserModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var copied = false
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                Text(model.diag.isEmpty ? "아직 기록이 없어요. 문제가 있는 화면(장바구니·체크아웃)을 연 채로 몇 초 기다린 뒤 다시 열어 보세요." : model.diagText)
+                    .font(.system(size: 11, design: .monospaced))
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .accessibilityIdentifier("diagText")
+            }
+            .navigationTitle("진단 결과 · \(model.site.title)")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) { Button("지우기") { model.clearDiag() } }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(copied ? "복사됨" : "복사") {
+                        UIPasteboard.general.string = model.diagText
+                        copied = true
+                    }
+                }
+                ToolbarItem(placement: .bottomBar) { Button("닫기") { dismiss() } }
+            }
         }
     }
 }
