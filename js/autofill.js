@@ -159,7 +159,7 @@
       case 'phone': return a.phone;
       case 'lastName': return a.lastName;
       case 'firstName': return a.firstName;
-      case 'fullName': return (a.lastName || '') + (a.firstName || '');
+      case 'fullName': return a.fullName || ((a.lastName || '') + (a.firstName || ''));
       case 'postal': return a.postal;
       case 'province': return a.province;
       case 'city': return a.city;
@@ -184,7 +184,8 @@
   function selectCandidates(key, v) {
     if (key === 'country') return ['KR', 'KOR', '대한민국', 'south korea', 'korea, republic of', 'republic of korea'];
     if (key === 'province') {
-      var r = region(v), out = [v];
+      var ko = (cfg.address && cfg.address.provinceKo) || v;
+      var r = region(ko), out = [v, ko];
       if (r) out.push(r[1], r[0], r[2]);
       return out;
     }

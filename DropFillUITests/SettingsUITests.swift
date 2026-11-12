@@ -4,6 +4,7 @@ import XCTest
 /// 설정 탭에서 상세주소 입력 → 앱 재실행 후에도 남아 있는지 → 체크아웃 화면에 그대로 채워지는지.
 final class SettingsUITests: XCTestCase {
     private let detail = "101동 1001호"
+    private let detailEn = "101-dong 1001-ho"
 
     override func setUp() {
         continueAfterFailure = false
@@ -80,6 +81,19 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(preview.label.contains(detail), "입력된 주소 미리보기에 상세주소 없음: \(preview.label)")
         shot("1-settings-entered")
 
+        // 영문 배송지: 한글 배송지로 자동 채우기
+        let fillEn = app.buttons["fillEnglish"]
+        XCTAssertTrue(scrollFind(fillEn, in: app, "fill-english"), "영문 자동 채우기 버튼 없음")
+        fillEn.tap()
+        let en2 = app.textFields["field.address2En"]
+        XCTAssertTrue(scrollFind(en2, in: app, "address2En"))
+        XCTAssertEqual(en2.value as? String, detailEn)
+        let en1 = app.textFields["field.address1En"]
+        XCTAssertEqual(en1.value as? String, "1, Sangok-ro")
+        let enPreview = app.staticTexts["englishPreview"]
+        XCTAssertTrue(scrollFind(enPreview, in: app, "english-preview"))
+        shot("1b-settings-english")
+
         // 2) 앱을 완전히 껐다 켜도 남아 있는지
         app.terminate()
         app.launchArguments = ["-uitest"]
@@ -88,19 +102,27 @@ final class SettingsUITests: XCTestCase {
         let again = app.textFields["field.address2"]
         XCTAssertTrue(scrollFind(again, in: app, "relaunch-field"))
         XCTAssertEqual(again.value as? String, detail, "재실행 후 상세주소가 사라짐")
+        let againEn = app.textFields["field.address2En"]
+        XCTAssertTrue(scrollFind(againEn, in: app, "relaunch-en"))
+        XCTAssertEqual(againEn.value as? String, detailEn, "재실행 후 영문 상세주소가 사라짐")
         shot("2-settings-after-relaunch")
 
-        // 3) 체크아웃 모양 테스트 페이지에 그대로 채워지는지
-        openTab(app, "Supreme")
-        let web = app.webViews.firstMatch
-        XCTAssertTrue(web.waitForExistence(timeout: 15), "웹 화면이 안 뜸")
-        let webDetail = web.textFields["상세주소"]
-        if !webDetail.waitForExistence(timeout: 15) { dumpHierarchy(app, "web") }
-        XCTAssertTrue(webDetail.exists, "체크아웃 상세주소 칸을 못 찾음")
-        let filled = expectation(for: NSPredicate(format: "value == %@", detail), evaluatedWith: webDetail)
-        wait(for: [filled], timeout: 20)
-        shot("3-checkout-filled")
+        // 3) Supreme 탭: 영문 배송지가 채워지는지
+        checkWebDetail(app, tab: "Supreme", expect: detailEn, shotName: "3-supreme-english")
+        // 4) Palace 탭: 한글 배송지가 채워지는지
+        checkWebDetail(app, tab: "Palace", expect: detail, shotName: "4-palace-korean")
+    }
 
+    private func checkWebDetail(_ app: XCUIApplication, tab: String, expect: String, shotName: String) {
+        openTab(app, tab)
+        let web = app.webViews.firstMatch
+        XCTAssertTrue(web.waitForExistence(timeout: 15), "\(tab) 웹 화면이 안 뜸")
+        let webDetail = web.textFields["상세주소"]
+        if !webDetail.waitForExistence(timeout: 15) { dumpHierarchy(app, "web-\(tab)") }
+        XCTAssertTrue(webDetail.exists, "\(tab) 체크아웃 상세주소 칸을 못 찾음")
+        let filled = expectation(for: NSPredicate(format: "value == %@", expect), evaluatedWith: webDetail)
+        wait(for: [filled], timeout: 20)
+        shot(shotName)
         // 결제 버튼은 눌리지 않았어야 함 (누르면 제목이 PAID로 바뀌게 해 둠)
         XCTAssertFalse(web.staticTexts["PAID"].exists)
     }

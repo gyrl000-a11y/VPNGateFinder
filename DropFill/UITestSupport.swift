@@ -16,13 +16,16 @@ enum UITestMode {
         s.autofillOn = true
         s.autoCheckoutOn = true
         s.resumeLastPage = false
+        s.supremeLang = .en
+        s.palaceLang = .ko
         s.profile = Profile(email: "test@example.com", phone: "010-1234-5678", lastName: "김", firstName: "혁",
                             postal: "21300", province: "인천광역시", city: "부평구",
                             address1: "산곡로 1", address2: "")
     }
 
     static func loadFixture(into m: BrowserModel) {
-        m.webView.loadHTMLString(fixture, baseURL: URL(string: "https://kr.supreme.com/checkouts/cn/uitest")!)
+        let host = m.site == .supreme ? "https://kr.supreme.com" : "https://shop-kr.palaceskateboards.com"
+        m.webView.loadHTMLString(fixture, baseURL: URL(string: host + "/checkouts/cn/uitest")!)
     }
 
     static let fixture = """

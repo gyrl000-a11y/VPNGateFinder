@@ -340,7 +340,7 @@ final class MessageRouter: NSObject, WKScriptMessageHandler, WKScriptMessageHand
         let host = message.frameInfo.securityOrigin.host
         switch body["type"] as? String ?? "" {
         case "config":
-            replyHandler(SettingsStore.shared.config(forHost: host), nil)
+            replyHandler(SettingsStore.shared.config(forHost: host, site: owner?.site ?? .supreme), nil)
             return
         case "filled":
             let n = body["count"] as? Int ?? 0

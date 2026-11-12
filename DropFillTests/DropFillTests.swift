@@ -13,16 +13,20 @@ final class DropFillTests: XCTestCase {
         let s = SettingsStore.shared
         s.autofillOn = true
         s.autoCheckoutOn = true
+        s.supremeLang = .en
+        s.palaceLang = .ko
         s.profile = Profile(email: "a@b.com", phone: "010-1234-5678", lastName: "김", firstName: "혁",
                             postal: "21300", province: "인천광역시", city: "부평구",
-                            address1: "산곡로 1", address2: "101동 1001호")
+                            address1: "산곡로 1", address2: "101동 1001호",
+                            lastNameEn: "KIM", firstNameEn: "HYUK", cityEn: "Bupyeong-gu",
+                            address1En: "1, Sangok-ro", address2En: "101-dong 1001-ho")
         s.card = CardInfo(number: "4111 1111 1111 1111", name: "HYUK KIM", month: "7", year: "2029", cvc: "123")
     }
 
-    private func makeModel() -> BrowserModel {
+    private func makeModel(_ site: Site = .palace) -> BrowserModel {
         configure()
         window?.isHidden = true
-        let m = BrowserModel(site: .supreme, autoload: false)
+        let m = BrowserModel(site: site, autoload: false)
         let vc = UIViewController()
         vc.view = m.container
         let w = UIWindow(frame: UIScreen.main.bounds)
@@ -166,6 +170,77 @@ final class DropFillTests: XCTestCase {
              "https://kr.supreme.com/challenge")
         let cap = await wait { m.gate == .captcha }
         XCTAssertTrue(cap, "captcha not detected")
+    }
+
+    // 8. Supreme 탭은 영문 배송지, Palace 탭은 한글 배송지
+    func testSupremeGetsEnglishAddress() async {
+        let m = makeModel(.supreme)
+        load(m, "<html><body>\(Self.checkoutFields)</body></html>", "https://kr.supreme.com/checkouts/cn/en")
+        let ok = await wait { await self.value(m, "address1") == "1, Sangok-ro" }
+        XCTAssertTrue(ok, "Supreme should get English address1")
+        let last = await value(m, "lastName")
+        let first = await value(m, "firstName")
+        let city = await value(m, "city")
+        let a2 = await value(m, "address2")
+        let zone = await value(m, "zone")
+        XCTAssertEqual(last, "KIM")
+        XCTAssertEqual(first, "HYUK")
+        XCTAssertEqual(city, "Bupyeong-gu")
+        XCTAssertEqual(a2, "101-dong 1001-ho")
+        XCTAssertEqual(zone, "KR-28", "province select should still match 인천")
+    }
+
+    func testPalaceGetsKoreanAddress() async {
+        let m = makeModel(.palace)
+        load(m, "<html><body>\(Self.checkoutFields)</body></html>", "https://shop-kr.palaceskateboards.com/checkouts/cn/ko")
+        let ok = await wait { await self.value(m, "address1") == "산곡로 1" }
+        XCTAssertTrue(ok, "Palace should get Korean address1")
+        let last = await value(m, "lastName")
+        let a2 = await value(m, "address2")
+        XCTAssertEqual(last, "김")
+        XCTAssertEqual(a2, "101동 1001호")
+    }
+
+    // 9. 영문 시/도 선택칸 (영문 체크아웃)
+    func testEnglishProvinceSelect() async {
+        let m = makeModel(.supreme)
+        let html = """
+        <html><body><select name="zone" autocomplete="shipping address-level1">
+        <option value="">Province</option><option value="SEOUL">Seoul</option>
+        <option value="INCHEON">Incheon</option><option value="GYEONGGI">Gyeonggi</option></select></body></html>
+        """
+        load(m, html, "https://kr.supreme.com/checkouts/cn/en2")
+        let ok = await wait { await self.value(m, "zone") == "INCHEON" }
+        XCTAssertTrue(ok, "English province option not matched")
+    }
+
+    // 10. 한글 → 영문 자동 변환
+    func testRomanizer() {
+        XCTAssertEqual(Romanizer.city("부평구"), "Bupyeong-gu")
+        XCTAssertEqual(Romanizer.city("수원시 팔달구"), "Paldal-gu, Suwon-si")
+        XCTAssertEqual(Romanizer.road("산곡로 1"), "1, Sangok-ro")
+        XCTAssertEqual(Romanizer.road("부평대로 283"), "283, Bupyeong-daero")
+        XCTAssertEqual(Romanizer.road("산곡로10번길 5"), "5, Sangok-ro 10beon-gil")
+        XCTAssertEqual(Romanizer.detail("101동 1001호"), "101-dong 1001-ho")
+        XCTAssertEqual(Romanizer.surname("김"), "KIM")
+        XCTAssertEqual(Romanizer.givenName("혁"), "HYEOK")
+        XCTAssertEqual(Romanizer.romanize("신라"), "silla")
+        XCTAssertEqual(Romanizer.romanize("종로"), "jongno")
+        XCTAssertEqual(KoreanRegion.english["인천광역시"], "Incheon")
+
+        var p = Profile(lastName: "김", firstName: "혁", province: "인천광역시", city: "부평구",
+                        address1: "산곡로 1", address2: "101동 1001호")
+        p.fillEnglishFromKorean()
+        XCTAssertEqual(p.address1En, "1, Sangok-ro")
+        XCTAssertEqual(p.provinceEn, "Incheon")
+    }
+
+    // 11. 예전 버전에 저장된 배송지(영문 칸 없음)도 그대로 읽힘
+    func testOldProfileStillDecodes() throws {
+        let old = #"{"email":"a@b.com","phone":"010","lastName":"김","firstName":"혁","postal":"21300","province":"인천광역시","city":"부평구","address1":"산곡로 1","address2":"101동 1001호"}"#
+        let p = try JSONDecoder().decode(Profile.self, from: Data(old.utf8))
+        XCTAssertEqual(p.address2, "101동 1001호")
+        XCTAssertEqual(p.address1En, "")
     }
 
     // 7. 설정: 허용 규칙

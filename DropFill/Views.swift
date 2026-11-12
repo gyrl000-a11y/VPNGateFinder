@@ -55,7 +55,10 @@ struct ContentView: View {
             if let site = n.object as? String { tab = site }
         }
         .onAppear {
-            if UITestMode.on { UITestMode.loadFixture(into: supreme) }
+            if UITestMode.on {
+                UITestMode.loadFixture(into: supreme)
+                UITestMode.loadFixture(into: palace)
+            }
         }
     }
 }
@@ -179,6 +182,59 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    LabeledContent("Supreme") {
+                        Picker("", selection: $s.supremeLang) {
+                            ForEach(AddressLang.allCases) { Text($0.title).tag($0) }
+                        }
+                        .pickerStyle(.segmented).frame(width: 140)
+                        .accessibilityIdentifier("lang.supreme")
+                    }
+                    LabeledContent("Palace") {
+                        Picker("", selection: $s.palaceLang) {
+                            ForEach(AddressLang.allCases) { Text($0.title).tag($0) }
+                        }
+                        .pickerStyle(.segmented).frame(width: 140)
+                        .accessibilityIdentifier("lang.palace")
+                    }
+                } header: {
+                    Text("사이트별 주소 언어")
+                } footer: {
+                    Text("체크아웃에서 어떤 주소를 넣을지 정해요. 기본값은 Supreme 영문, Palace 한글이에요.")
+                }
+
+                Section {
+                    field("성 (영문)", $s.profile.lastNameEn, "예: KIM", id: "lastNameEn")
+                    field("이름 (영문)", $s.profile.firstNameEn, "예: HYUK", id: "firstNameEn")
+                    LabeledContent("시/도 (영문)") {
+                        Text(s.profile.province.isEmpty ? "위 시/도를 고르면 자동" : s.profile.provinceEn)
+                            .foregroundStyle(.secondary)
+                    }
+                    field("City (시/군/구)", $s.profile.cityEn, "예: Bupyeong-gu", id: "cityEn")
+                    field("Address 1 (도로명)", $s.profile.address1En, "예: 1, Sangok-ro", id: "address1En")
+                    field("Address 2 (상세)", $s.profile.address2En, "예: 101-dong 1001-ho", id: "address2En")
+                    Button {
+                        s.profile.fillEnglishFromKorean()
+                    } label: {
+                        Label("한글 배송지로 자동 채우기", systemImage: "character.book.closed")
+                    }
+                    .accessibilityIdentifier("fillEnglish")
+                    Link(destination: URL(string: "https://www.juso.go.kr/")!) {
+                        Label("공식 영문 주소 확인 (도로명주소 안내)", systemImage: "safari")
+                    }
+                } header: {
+                    Text("영문 배송지")
+                } footer: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        if !englishPreview.isEmpty {
+                            Text("영문 주소: \(englishPreview)")
+                                .foregroundStyle(.primary)
+                                .accessibilityIdentifier("englishPreview")
+                        }
+                        Text("자동 채우기는 한글을 로마자로 바꾼 값이라 도로명 표기가 공식과 다를 수 있어요. 도로명주소 안내 사이트에서 '영문' 주소를 확인해 고쳐 두면 가장 정확해요. 우편번호·전화·이메일은 한글 배송지 값을 같이 써요.")
+                    }
+                }
+
+                Section {
                     field("카드 번호", $s.card.number, "0000 0000 0000 0000", .numberPad, id: "ccNumber")
                     field("소유자 (영문)", $s.card.name, "HONG GILDONG", id: "ccName")
                     field("유효기간 월", $s.card.month, "MM", .numberPad, id: "ccMonth")
@@ -257,6 +313,13 @@ struct SettingsView: View {
                 }
             ), displayedComponents: .hourAndMinute)
         }
+    }
+
+    private var englishPreview: String {
+        let p = s.profile
+        let line = [p.address2En, p.address1En, p.cityEn, p.province.isEmpty ? "" : p.provinceEn, p.postal]
+            .filter { !$0.isEmpty }.joined(separator: ", ")
+        return line
     }
 
     private var addressPreview: String {

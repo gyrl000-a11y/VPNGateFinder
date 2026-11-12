@@ -11,11 +11,63 @@ struct Profile: Codable, Equatable {
     var city = ""
     var address1 = ""
     var address2 = ""
+    // 영문 배송지 (영문 주소를 받는 사이트용)
+    var lastNameEn = ""
+    var firstNameEn = ""
+    var cityEn = ""
+    var address1En = ""
+    var address2En = ""
 
-    var dict: [String: Any] {
-        ["email": email, "phone": phone, "lastName": lastName, "firstName": firstName,
-         "postal": postal, "province": province, "city": city,
-         "address1": address1, "address2": address2]
+    init(email: String = "", phone: String = "", lastName: String = "", firstName: String = "",
+         postal: String = "", province: String = "", city: String = "", address1: String = "", address2: String = "",
+         lastNameEn: String = "", firstNameEn: String = "", cityEn: String = "",
+         address1En: String = "", address2En: String = "") {
+        self.email = email; self.phone = phone; self.lastName = lastName; self.firstName = firstName
+        self.postal = postal; self.province = province; self.city = city
+        self.address1 = address1; self.address2 = address2
+        self.lastNameEn = lastNameEn; self.firstNameEn = firstNameEn; self.cityEn = cityEn
+        self.address1En = address1En; self.address2En = address2En
+    }
+
+    // 예전 버전에 저장된 값(영문 칸 없음)도 그대로 읽히도록
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        func v(_ k: CodingKeys) -> String { (try? c.decodeIfPresent(String.self, forKey: k)) ?? "" }
+        self.init(email: v(.email), phone: v(.phone), lastName: v(.lastName), firstName: v(.firstName),
+                  postal: v(.postal), province: v(.province), city: v(.city),
+                  address1: v(.address1), address2: v(.address2),
+                  lastNameEn: v(.lastNameEn), firstNameEn: v(.firstNameEn), cityEn: v(.cityEn),
+                  address1En: v(.address1En), address2En: v(.address2En))
+    }
+
+    var provinceEn: String { KoreanRegion.english[province] ?? province }
+
+    func dict(_ lang: AddressLang) -> [String: Any] {
+        let en = lang == .en
+        let last = en ? lastNameEn : lastName
+        let first = en ? firstNameEn : firstName
+        return ["lang": lang.rawValue, "email": email, "phone": phone,
+                "lastName": last, "firstName": first,
+                "fullName": en ? "\(first) \(last)" : last + first,
+                "postal": postal,
+                "province": en ? provinceEn : province,
+                "provinceKo": province,
+                "city": en ? cityEn : city,
+                "address1": en ? address1En : address1,
+                "address2": en ? address2En : address2]
+    }
+
+    /// 한글 배송지로 영문 칸 채우기 (자동 변환 — 확인 필요)
+    mutating func fillEnglishFromKorean() {
+        if !lastName.isEmpty { lastNameEn = Romanizer.surname(lastName) }
+        if !firstName.isEmpty { firstNameEn = Romanizer.givenName(firstName) }
+        if !city.isEmpty { cityEn = Romanizer.city(city) }
+        if !address1.isEmpty { address1En = Romanizer.road(address1) }
+        if !address2.isEmpty { address2En = Romanizer.detail(address2) }
+    }
+
+    var englishMissing: Bool {
+        lastNameEn.isEmpty || firstNameEn.isEmpty || cityEn.isEmpty || address1En.isEmpty
     }
 }
 
@@ -87,6 +139,8 @@ final class SettingsStore: ObservableObject {
     @Published var supremeHome: String { didSet { ud.set(supremeHome, forKey: "home.supreme") } }
     @Published var palaceHome: String { didSet { ud.set(palaceHome, forKey: "home.palace") } }
     @Published var extraCardHosts: String { didSet { ud.set(extraCardHosts, forKey: "extraCardHosts") } }
+    @Published var supremeLang: AddressLang { didSet { ud.set(supremeLang.rawValue, forKey: "lang.supreme") } }
+    @Published var palaceLang: AddressLang { didSet { ud.set(palaceLang.rawValue, forKey: "lang.palace") } }
     @Published var resumeLastPage: Bool { didSet { ud.set(resumeLastPage, forKey: "resumeLastPage") } }
     @Published var keepAliveInQueue: Bool { didSet { ud.set(keepAliveInQueue, forKey: "keepAliveInQueue") } }
     @Published var supremeAlarm: DropAlarmSetting { didSet { saveJSON(supremeAlarm, "alarm.supreme"); DropAlarm.reschedule() } }
@@ -106,11 +160,15 @@ final class SettingsStore: ObservableObject {
         supremeHome = d.string(forKey: "home.supreme") ?? Site.supreme.defaultHome
         palaceHome = d.string(forKey: "home.palace") ?? Site.palace.defaultHome
         extraCardHosts = d.string(forKey: "extraCardHosts") ?? ""
+        supremeLang = AddressLang(rawValue: d.string(forKey: "lang.supreme") ?? "") ?? .en
+        palaceLang = AddressLang(rawValue: d.string(forKey: "lang.palace") ?? "") ?? .ko
         resumeLastPage = d.object(forKey: "resumeLastPage") as? Bool ?? true
         keepAliveInQueue = d.object(forKey: "keepAliveInQueue") as? Bool ?? false
         supremeAlarm = SettingsStore.loadJSON(DropAlarmSetting.self, "alarm.supreme") ?? DropAlarmSetting(weekday: 7)
         palaceAlarm = SettingsStore.loadJSON(DropAlarmSetting.self, "alarm.palace") ?? DropAlarmSetting(weekday: 6)
     }
+
+    func lang(for site: Site) -> AddressLang { site == .supreme ? supremeLang : palaceLang }
 
     func alarm(for site: Site) -> DropAlarmSetting { site == .supreme ? supremeAlarm : palaceAlarm }
 
@@ -144,11 +202,12 @@ final class SettingsStore: ObservableObject {
     }
 
     /// 프레임 출처(host)에 따라 넘겨줄 정보를 고른다. 쇼핑몰 도메인엔 주소, 결제 도메인엔 카드만.
-    func config(forHost host: String) -> [String: Any] {
+    /// site: 요청이 온 탭 — 그 사이트에 맞는 언어(한글/영문)의 배송지를 넘긴다
+    func config(forHost host: String, site: Site = .supreme) -> [String: Any] {
         guard autofillOn, !host.isEmpty else { return ["enabled": false] }
         var d: [String: Any] = ["enabled": true, "autoCheckout": autoCheckoutOn]
         let shop = isShopHost(host)
-        if shop { d["address"] = profile.dict }
+        if shop { d["address"] = profile.dict(lang(for: site)) }
         if (shop || isCardHost(host)) && !card.isEmpty { d["card"] = card.dict }
         if d["address"] == nil && d["card"] == nil { d["enabled"] = false }
         return d
