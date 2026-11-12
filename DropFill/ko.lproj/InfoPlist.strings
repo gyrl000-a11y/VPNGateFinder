@@ -1,0 +1,2 @@
+/* 홈 화면 이름 (한국어 기기) — 앱 정보 이름은 SideStore 앱 ID 때문에 영문 유지 */
+"CFBundleDisplayName" = "드랍필";

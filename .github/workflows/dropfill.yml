@@ -88,6 +88,16 @@ jobs:
         if: failure()
         run: grep -hE "error:|fatal error|FAILED|failed" out/*.log | head -n 80 || true
 
+      - name: Check app name is ASCII (SideStore/AltStore App ID requirement)
+        run: |
+          PL=build/Build/Products/Release-iphoneos/DropFill.app/Info.plist
+          for k in CFBundleDisplayName CFBundleName; do
+            v=$(/usr/libexec/PlistBuddy -c "Print :$k" "$PL")
+            echo "$k = $v"
+            echo "$v" | LC_ALL=C grep -q '^[A-Za-z0-9 ]*$' || { echo "::error::$k must be ASCII"; exit 1; }
+          done
+          echo "ko.lproj:"; cat build/Build/Products/Release-iphoneos/DropFill.app/ko.lproj/InfoPlist.strings | iconv -f UTF-16 -t UTF-8 2>/dev/null || plutil -p build/Build/Products/Release-iphoneos/DropFill.app/ko.lproj/InfoPlist.strings
+
       - name: Package IPA
         run: |
           mkdir -p Payload

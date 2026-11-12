@@ -12,9 +12,12 @@ targets:
     info:
       path: DropFill/Info.plist
       properties:
-        CFBundleDisplayName: 드랍필
-        CFBundleShortVersionString: "1.2"
-        CFBundleVersion: "3"
+        CFBundleDisplayName: DropFill
+        CFBundleName: DropFill
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, ko]
+        CFBundleShortVersionString: "1.3"
+        CFBundleVersion: "4"
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIBackgroundModes: [audio]
