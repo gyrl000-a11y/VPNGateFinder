@@ -281,12 +281,15 @@ final class DropFillTests: XCTestCase {
         <input type="email" name="email" id="signup-email" autocomplete="email">
         <button name="checkout" id="co" disabled onclick="window.__co=true">CHECKOUT</button>
         <script>
-          // Palace처럼: 클릭하면 내부 상태를 뒤집고, 체크 표시·버튼은 0.15초 뒤에 반영
+          // Palace처럼: 사이트 스크립트가 늦게(2.5초) 준비되고, 클릭하면 내부 상태를 뒤집고,
+          // 체크 표시·버튼은 0.15초 뒤에 반영 → 앱이 먼저 체크하면 '체크됐는데 버튼 꺼짐'이 됨
           var st = false, cb = document.getElementById('terms'), co = document.getElementById('co');
-          cb.addEventListener('click', function (e) {
-            e.preventDefault(); st = !st;
-            setTimeout(function () { cb.checked = st; co.disabled = !st; window.__st = st; }, 150);
-          });
+          setTimeout(function () {
+            cb.addEventListener('click', function (e) {
+              e.preventDefault(); st = !st;
+              setTimeout(function () { cb.checked = st; co.disabled = !st; window.__st = st; }, 150);
+            });
+          }, 2500);
         </script>
         </body></html>
         """

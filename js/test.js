@@ -101,15 +101,27 @@ ${zone}
   await sleep(1300);
   check(t.msgs.filter(m=>m.type==='added').length===1, 'add detected via /cart.js count');
 
-  // 8b Palace 방식: 클릭하면 사이트가 상태를 뒤집고 체크 표시는 0.1초 뒤에 반영
-  t = mk(`<body><label><input type="checkbox" id="terms-checkbox"> 이용약관에 동의합니다 TERMS AND CONDITIONS</label><button name="checkout" id="co" disabled>CHECKOUT</button><input type="email" name="email" id="signup-email" autocomplete="email"><label><input type="checkbox" id="mailing-list-terms-checkbox"> 개인정보 수집·이용 및 광고성 정보 수신에 동의합니다</label></body>`, 'https://kr.palaceskateboards.com/cart', {enabled:true,autoCheckout:true,autoAgree:true,address:addr});
-  { const d=t.w.document, cb=d.getElementById('terms-checkbox'), co=d.getElementById('co'); let st=false;
-    cb.addEventListener('click', e => { e.preventDefault(); st=!st; setTimeout(()=>{ cb.checked=st; co.disabled=!st; }, 100); }); 
-    t.w.eval(AUTOFILL); await sleep(3500);
-    check(cb.checked === true && st === true && co.disabled === false, 'async checkbox: state and screen agree (checked='+cb.checked+', state='+st+')');
-    check(t.clicks.includes('CHECKOUT'), 'CHECKOUT clicked');
-    check(d.getElementById('signup-email').value === '', 'newsletter signup email untouched');
-    check(!d.getElementById('mailing-list-terms-checkbox').checked, 'ad consent untouched'); }
+  // 8b Palace 방식 ①: 사이트 스크립트가 늦게(2.5초) 준비됨 + 상태를 뒤집는 방식 + 체크 표시는 0.1초 뒤 반영
+  //    → 앱이 먼저 체크하면 '체크됐는데 버튼 꺼짐'이 됨 → 빠른 재시도로 맞춰야 함
+  for (const hydrateAt of [800, 2500]) {
+    t = mk(`<body><label><input type="checkbox" id="terms-checkbox"> 이용약관에 동의합니다 TERMS AND CONDITIONS</label><button name="checkout" id="co" disabled>CHECKOUT</button><input type="email" name="email" id="signup-email" autocomplete="email"><label><input type="checkbox" id="mailing-list-terms-checkbox"> 개인정보 수집·이용 및 광고성 정보 수신에 동의합니다</label></body>`, 'https://kr.palaceskateboards.com/cart', {enabled:true,autoCheckout:true,autoAgree:true,address:addr});
+    const d=t.w.document, cb=d.getElementById('terms-checkbox'), co=d.getElementById('co'); let st=false;
+    setTimeout(() => cb.addEventListener('click', e => { e.preventDefault(); st=!st; setTimeout(()=>{ cb.checked=st; co.disabled=!st; }, 100); }), hydrateAt);
+    t.w.eval(AUTOFILL); await sleep(6000);
+    check(cb.checked === true && st === true && co.disabled === false, `hydrate@${hydrateAt}ms: box and site agree (checked=${cb.checked}, state=${st})`);
+    check(t.clicks.includes('CHECKOUT'), `hydrate@${hydrateAt}ms: CHECKOUT clicked`);
+    check(d.getElementById('signup-email').value === '' && !d.getElementById('mailing-list-terms-checkbox').checked, `hydrate@${hydrateAt}ms: signup/ad consent untouched`);
+  }
+
+  // 8c 카드번호 안전장치: 쇼핑몰 본문에서 예전에 카드칸이었던 칸이 통관부호 칸으로 바뀌어도 카드번호를 넣지 않음
+  t = mk(`<body><label for="f">Card number</label><input id="f" name="cardnumber"></body>`, 'https://shop.supreme.com/checkouts/cn/x/en-kr',
+    {enabled:true,autoCheckout:true,address:addr,card,identity:{birth:'19900101',customs:'P123456789012',pin2:'12'}});
+  t.w.eval(AUTOFILL); await sleep(500);
+  { const d=t.w.document, f=d.getElementById('f');
+    check(f.value === '', 'no card number in a main-page field without cc-* autocomplete');
+    f.setAttribute('name', 'Personal Customs Code'); d.querySelector('label').textContent = 'Personal customs code';
+    await sleep(1600);
+    check(f.value === 'P123456789012', 'reused element re-detected as customs: ' + f.value); }
 
   // 10 Supreme 체크아웃(진단 결과 그대로): 필수 동의 체크, 전체 동의·정보 저장 건드리지 않음,
   //    통관부호 칸은 한 번에 넣으면 지워지고 한 글자씩 입력해야 받아들임, 카드 비밀번호 앞 2자리
@@ -147,8 +159,8 @@ ${zone}
 
   // 8 cart page: 필수 약관만 체크하고 체크아웃
   t = mk(`<body><label><input type="checkbox" id="terms"> 이용약관에 동의합니다</label><label><input type="checkbox" id="mkt"> 마케팅 수신 동의</label><button name="checkout" id="co" disabled>체크아웃</button></body>`, 'https://kr.palaceskateboards.com/cart', {enabled:true,autoCheckout:true,autoAgree:true,address:addr});
-  t.w.document.getElementById('terms').addEventListener('change', e => { t.w.document.getElementById('co').disabled = !e.target.checked; });
-  t.w.eval(AUTOFILL); await sleep(1500);
+  { const d8 = t.w.document; d8.getElementById('terms').addEventListener('change', e => { d8.getElementById('co').disabled = !e.target.checked; }); }
+  t.w.eval(AUTOFILL); await sleep(3500);
   check(t.w.document.getElementById('terms').checked && !t.w.document.getElementById('mkt').checked, 'terms checked, marketing untouched');
   check(t.clicks.includes('체크아웃'), 'checkout clicked after agree');
 

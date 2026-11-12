@@ -90,6 +90,8 @@ enum Scripts {
   ];
 
   var cfg = null;
+  var selfAct = false;
+  function act(fn) { selfAct = true; try { fn(); } finally { selfAct = false; } }
   var touched = new WeakSet();
   var fillCount = new WeakMap();
   var clicked = {};
@@ -131,11 +133,25 @@ enum Scripts {
     return visible(el);
   }
 
+  function keySig(el) {
+    return [el.getAttribute('name'), el.id, el.getAttribute('autocomplete'), el.getAttribute('placeholder'),
+            el.getAttribute('aria-label'), el.getAttribute('aria-labelledby'), labelText(el)].join('|');
+  }
+
   function keyFor(el) {
-    if (el.__dfKey !== undefined) return el.__dfKey;
+    var sig = keySig(el);
+    if (el.__dfKey !== undefined && el.__dfSig === sig) return el.__dfKey;
     var k = computeKey(el);
     el.__dfKey = k;
+    el.__dfSig = sig;
     return k;
+  }
+
+  // 카드 정보는 결제 전용 입력창(카드 도메인 iframe)이나 cc-* 로 명시된 칸에만
+  function cardFieldOk(el, key) {
+    if (!cfg.address) return true;                          // 카드 도메인 프레임
+    var ac = (el.getAttribute('autocomplete') || '').toLowerCase();
+    return /(^|\s)cc-/.test(ac);
   }
 
   var PIN2_NAME_RE = /pin.?code.?first|first.?two.?digits|card.?pw.?2|cardpin2/;
@@ -318,6 +334,7 @@ enum Scripts {
       var key = keyFor(el);
       if (!key) continue;
       if (!allowedKey(key)) continue;
+      if (isCardKey(key) && !cardFieldOk(el, key)) continue;
       list.push([el, key]);
     }
     // 국가를 먼저 맞춰야 주소 칸이 한국 형식으로 다시 그려진다
@@ -330,13 +347,15 @@ enum Scripts {
       if (v == null || v === '') continue;
       v = String(v);
       if (e.tagName === 'SELECT') {
-        if (setSelect(e, selectCandidates(key2, v))) filled++;
+        var changed = false;
+        act(function () { changed = setSelect(e, selectCandidates(key2, v)); });
+        if (changed) filled++;
         if (key2 === 'country' && filled) break; // 다시 그려질 때까지 기다림
       } else if (key2 !== 'country' && !e.value) {
         var tries = fillCount.get(e) || 0;
         if (tries >= 5) continue;                 // 계속 지워지면 포기 (무한 반복 방지)
         fillCount.set(e, tries + 1);
-        if (tries === 0) setText(e, v); else typeText(e, v);
+        act(function () { if (tries === 0) setText(e, v); else typeText(e, v); });
         filled++;
       }
     }
@@ -360,7 +379,7 @@ enum Scripts {
     setTimeout(function () {
       if (!document.contains(el) || el.disabled) { clicked[key] = false; return; }
       if (PAY_RE.test(txt(el)) && !/\/cart\/?$/.test(location.pathname)) return; // 안전장치
-      el.click();
+      act(function () { el.click(); });
       if (msg) post({ type: 'log', msg: msg });
     }, delay);
   }
@@ -378,12 +397,26 @@ enum Scripts {
   // 체크박스마다 '한 번 누르고 기다렸다가 확인'. 사이트가 체크 표시를 늦게 바꾸는 경우가 있어
   // 바로 다시 누르거나 checked 를 강제로 켜면 사이트 내부 상태와 화면이 반대가 된다 (Palace 장바구니).
   var agreeTried = {};
-  function checkAgreements() {
+  var AGREE_FIRST_DELAY = 1500;     // 첫 체크는 페이지가 준비된 뒤 천천히
+  var AGREE_REPAIR_GAP = 300;       // 체크했는데 버튼이 안 켜지면 빠르게 재시도
+  var pageReadyAt = 0;
+
+  function pageSettled(now) {
+    if (document.readyState !== 'complete') return false;
+    if (!pageReadyAt) pageReadyAt = now;
+    return now - pageReadyAt >= AGREE_FIRST_DELAY;
+  }
+
+  // gateBtn: 이 동의에 따라 켜지는 버튼(장바구니 CHECKOUT). 체크돼 있는데 버튼이 계속 꺼져 있으면
+  // 사이트가 체크를 못 알아챈 것 → 조용히 체크를 풀고 다시 클릭해서 사이트 상태와 맞춘다.
+  function checkAgreements(gateBtn) {
+    var now = Date.now();
+    if (!pageSettled(now)) return 0;
     var boxes = document.querySelectorAll('input[type="checkbox"]');
-    var n = 0, now = Date.now();
+    var n = 0;
     for (var i = 0; i < boxes.length; i++) {
       var cb = boxes[i];
-      if (cb.checked || cb.disabled || touched.has(cb)) continue;
+      if (cb.disabled || touched.has(cb)) continue;
       // 자기 라벨을 우선 사용 (묶음 전체 글자를 보면 '전체 동의' 같은 옆 문구가 섞임)
       var t = labelText(cb);
       if (!t) {
@@ -393,24 +426,43 @@ enum Scripts {
       t = t.slice(0, 300);
       if (!AGREE_RE.test(t) || AGREE_SKIP_RE.test(t)) continue;
       var k = location.pathname + '|' + (cb.id || cb.name || t.slice(0, 40));
-      var st = agreeTried[k] || { n: 0, at: 0 };
-      if (st.n >= 2 || now - st.at < 900) continue;      // 최대 2번, 시도 사이 0.9초 대기
-      st.n += 1; st.at = now; agreeTried[k] = st;
-      if (st.n === 1) cb.click();
-      else { var lb = cb.labels && cb.labels[0]; (lb || cb).click(); }  // 첫 시도가 안 먹힌 경우만
-      n++;
+      var st = agreeTried[k] || { n: 0, at: 0, rep: 0 };
+      agreeTried[k] = st;
+      if (!cb.checked) {
+        if (st.n >= 2 || now - st.at < 900) continue;    // 체크 표시가 늦게 바뀌는 사이트 대비 0.9초 대기
+        st.n += 1; st.at = now;
+        if (st.n === 1) act(function () { cb.click(); });
+        else { var lb = cb.labels && cb.labels[0]; act(function () { (lb || cb).click(); }); }
+        n++;
+      } else if (gateBtn && gateBtn.disabled && st.rep < 4 && now - st.at >= (st.rep ? 500 : 700)) {
+        // 재시도 한 번마다 사이트 상태가 한 번 뒤집히므로, 사이트가 반영할 시간(0.5초)은 두고 다시 확인
+        st.rep += 1; st.at = now;
+        act(function () {
+          cb.checked = false;        // 이벤트 없이 화면만 해제 → 한 번 클릭해서 사이트에 '체크'로 알림
+          cb.click();
+        });
+        n++;
+      }
     }
     if (n) post({ type: 'log', msg: '약관 동의 체크' });
     return n;
   }
 
-  function clickCartCheckout() {
-    if (cfg.autoAgree) checkAgreements();
-    var el = null;
+  function cartCheckoutButton() {
     var named = document.querySelectorAll('button[name="checkout"], input[name="checkout"]');
-    for (var i = 0; i < named.length; i++) if (visible(named[i])) { el = named[i]; break; }
-    if (!el) el = findButton(function (t) { return CART_CHECKOUT_RE.test(t) && !EXPRESS_RE.test(t); });
-    if (el && !el.disabled) clickOnce('cart:' + location.href, el, 250, '체크아웃으로 넘어가는 중');
+    for (var i = 0; i < named.length; i++) if (visible(named[i])) return named[i];
+    return findButton(function (t) { return CART_CHECKOUT_RE.test(t) && !EXPRESS_RE.test(t); });
+  }
+
+  var cartDone = false;
+  function clickCartCheckout() {
+    var el = cartCheckoutButton();
+    if (cfg.autoAgree) checkAgreements(el);
+    el = cartCheckoutButton();
+    if (el && !el.disabled) {
+      cartDone = true;
+      clickOnce('cart:' + location.href, el, 250, '체크아웃으로 넘어가는 중');
+    }
   }
 
   function tryContinue() {
@@ -446,6 +498,9 @@ enum Scripts {
     try { n = pass(); } catch (e) { post({ type: 'log', msg: 'fill error: ' + e.message }); }
     if (n > 0) post({ type: 'filled', count: n, card: !cfg.address });
     if (IS_TOP && cfg.address) { try { afterFill(); } catch (e) {} }
+    // 장바구니에서는 체크아웃이 눌릴 때까지 0.3초마다 확인 (빠른 재시도)
+    if (IS_TOP && cfg.address && cfg.autoCheckout && !cartDone && /\/cart\/?$/.test(location.pathname)
+        && Date.now() - started < 60000) schedule(AGREE_REPAIR_GAP);
   }
 
   function schedule(ms) {
@@ -454,8 +509,9 @@ enum Scripts {
   }
 
   function start() {
-    document.addEventListener('input', function (e) { if (e.isTrusted && e.target) touched.add(e.target); }, true);
-    document.addEventListener('change', function (e) { if (e.isTrusted && e.target) touched.add(e.target); }, true);
+    // 사용자가 직접 바꾼 칸만 '건드림'으로 기록 (앱 자신의 클릭·입력으로 생긴 이벤트는 제외)
+    document.addEventListener('input', function (e) { if (e.isTrusted && !selfAct && e.target) touched.add(e.target); }, true);
+    document.addEventListener('change', function (e) { if (e.isTrusted && !selfAct && e.target) touched.add(e.target); }, true);
     new MutationObserver(function () {
       if (Date.now() - started < LIFETIME) schedule(300);
     }).observe(document.documentElement, { childList: true, subtree: true });
