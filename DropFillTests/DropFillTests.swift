@@ -352,6 +352,11 @@ final class DropFillTests: XCTestCase {
         XCTAssertEqual(dob, "1990-01-01")
         XCTAssertEqual(pin, "12")
         let scrolled = await wait { ((await self.js(m, "window.scrollY") as? Double) ?? 0) > 1000 }
+        if !scrolled {
+            let st = try? await m.webView.evaluateJavaScript("String(window.__dfScroll) + ' y=' + window.scrollY",
+                                                              in: nil, contentWorld: .defaultClient)
+            XCTFail("scroll state: \(String(describing: st))")
+        }
         XCTAssertTrue(scrolled, "should scroll down to the pay button after autofill")
         let payMarked = ((await js(m, "document.getElementById('pay').style.outline") as? String) ?? "").contains("3px")
         XCTAssertTrue(payMarked, "'process payment' should be highlighted")

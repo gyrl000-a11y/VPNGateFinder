@@ -486,16 +486,28 @@ enum Scripts {
     post({ type: 'ready' });
   }
 
-  var lastFillAt = 0, scrolledFor = '';
-  // 자동입력이 끝나고(1.5초 동안 새로 채운 칸 없음) 결제 버튼이 있는 맨 아래로 한 번 스크롤
+  var lastFillAt = 0, scrolledFor = '', scrollTries = 0, lastScrollAt = 0, scrollDone = '';
+  function docHeight() {
+    return Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
+  }
+  function atBottom() { return window.scrollY + window.innerHeight >= docHeight() - 120; }
+  // 자동입력이 끝나고(1.5초 동안 새로 채운 칸 없음) 결제 버튼이 있는 맨 아래로 스크롤.
+  // 실제로 내려갔는지 확인하고, 안 내려갔으면 0.6초 뒤 다시 (최대 3번). 내려간 뒤엔 더 건드리지 않음.
   function maybeScrollToPay() {
-    if (!cfg.scrollToPay || scrolledFor === location.href) return;
+    if (!cfg.scrollToPay || scrollDone === location.href) return;
     var now = Date.now();
     if (!lastFillAt || now - lastFillAt < 1500) return;
-    scrolledFor = location.href;
-    var h = Math.max(document.documentElement.scrollHeight, document.body ? document.body.scrollHeight : 0);
-    try { window.scrollTo({ top: h, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, h); }
-    post({ type: 'log', msg: '결제 버튼 위치로 이동' });
+    if (scrolledFor === location.href) {
+      if (atBottom()) { scrollDone = location.href; window.__dfScroll = 'done:' + Math.round(window.scrollY); return; }
+      if (scrollTries >= 3 || now - lastScrollAt < 600) return;
+    } else {
+      scrolledFor = location.href; scrollTries = 0;
+    }
+    scrollTries++; lastScrollAt = now;
+    try { var a = document.activeElement; if (a && a !== document.body && a.blur) a.blur(); } catch (e) {}
+    window.scrollTo(0, docHeight());
+    window.__dfScroll = 'try' + scrollTries + ':' + Math.round(window.scrollY) + '/' + docHeight();
+    if (scrollTries === 1) post({ type: 'log', msg: '결제 버튼 위치로 이동' });
   }
 
   function afterFill() {
@@ -520,7 +532,8 @@ enum Scripts {
     // 장바구니에서는 체크아웃이 눌릴 때까지 0.3초마다 확인 (빠른 재시도)
     if (IS_TOP && cfg.address && cfg.autoCheckout && !cartDone && /\/cart\/?$/.test(location.pathname)
         && Date.now() - started < 60000) schedule(AGREE_REPAIR_GAP);
-    if (IS_TOP && cfg.scrollToPay && lastFillAt && scrolledFor !== location.href && /checkout/i.test(location.pathname)) schedule(500);
+    if (IS_TOP && cfg.scrollToPay && lastFillAt && scrollDone !== location.href && scrollTries < 3
+        && /checkout/i.test(location.pathname)) schedule(400);
   }
 
   function schedule(ms) {
