@@ -13,8 +13,8 @@ targets:
       path: DropFill/Info.plist
       properties:
         CFBundleDisplayName: 드랍필
-        CFBundleShortVersionString: "1.1"
-        CFBundleVersion: "2"
+        CFBundleShortVersionString: "1.2"
+        CFBundleVersion: "3"
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         UIBackgroundModes: [audio]
@@ -42,13 +42,28 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.hyuk.dropfill.tests
         SWIFT_VERSION: "5.0"
         CODE_SIGNING_ALLOWED: "NO"
+  DropFillUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: DropFillUITests
+    dependencies:
+      - target: DropFill
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: "YES"
+        PRODUCT_BUNDLE_IDENTIFIER: com.hyuk.dropfill.uitests
+        SWIFT_VERSION: "5.0"
+        CODE_SIGNING_ALLOWED: "NO"
 schemes:
   DropFill:
     build:
       targets:
         DropFill: all
         DropFillTests: [test]
+        DropFillUITests: [test]
     test:
       config: Debug
       targets:
         - DropFillTests
+        - DropFillUITests

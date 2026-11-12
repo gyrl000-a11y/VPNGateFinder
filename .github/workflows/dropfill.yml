@@ -50,9 +50,11 @@ jobs:
           mkdir -p out
           xcrun simctl list devices | grep "$UDID" | tee out/simulator.txt
 
-      - name: Unit tests on simulator (real WebKit)
+      - name: Unit + UI tests on simulator (real WebKit)
         run: |
           set -o pipefail
+          mkdir -p out/shots
+          TEST_RUNNER_SHOT_DIR="$PWD/out/shots" \
           xcodebuild test -project DropFill.xcodeproj -scheme DropFill \
             -destination "id=$UDID" -derivedDataPath simbuild \
             CODE_SIGNING_ALLOWED=NO 2>&1 | tee out/test.log | grep -E "error:|Test Case|Executed|TEST (SUCCEEDED|FAILED)|XCTAssert" || true

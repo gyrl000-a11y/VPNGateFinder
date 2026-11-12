@@ -7,8 +7,11 @@ struct DropFillApp: App {
     @State private var bgTask: UIBackgroundTaskIdentifier = .invalid
 
     init() {
-        Notifier.shared.setup()
-        DropAlarm.reschedule()
+        UITestMode.prepareSettings()
+        if !UITestMode.on {
+            Notifier.shared.setup()
+            DropAlarm.reschedule()
+        }
     }
 
     var body: some Scene {
@@ -30,8 +33,8 @@ struct DropFillApp: App {
 }
 
 struct ContentView: View {
-    @StateObject private var supreme = BrowserModel(site: .supreme)
-    @StateObject private var palace = BrowserModel(site: .palace)
+    @StateObject private var supreme = BrowserModel(site: .supreme, autoload: !UITestMode.on)
+    @StateObject private var palace = BrowserModel(site: .palace, autoload: !UITestMode.on)
     @State private var tab = Site.supreme.rawValue
 
     var body: some View {
@@ -50,6 +53,9 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .dropFillFocus)) { n in
             if let site = n.object as? String { tab = site }
+        }
+        .onAppear {
+            if UITestMode.on { UITestMode.loadFixture(into: supreme) }
         }
     }
 }
@@ -144,30 +150,44 @@ struct SettingsView: View {
                 }
 
                 Section("연락처") {
-                    field("이메일", $s.profile.email, .emailAddress)
-                    field("휴대폰 (010-0000-0000)", $s.profile.phone, .phonePad)
+                    field("이메일", $s.profile.email, "예: name@example.com", .emailAddress, id: "email")
+                    field("휴대폰", $s.profile.phone, "010-0000-0000", .phonePad, id: "phone")
                 }
 
-                Section("배송지") {
-                    field("성", $s.profile.lastName)
-                    field("이름", $s.profile.firstName)
-                    field("우편번호", $s.profile.postal, .numberPad)
+                Section {
+                    field("성", $s.profile.lastName, "예: 홍", id: "lastName")
+                    field("이름", $s.profile.firstName, "예: 길동", id: "firstName")
+                    field("우편번호", $s.profile.postal, "예: 21300", .numberPad, id: "postal")
                     Picker("시/도", selection: $s.profile.province) {
                         Text("선택").tag("")
                         ForEach(regions, id: \.self) { Text($0).tag($0) }
                     }
-                    field("시/군/구 (예: 부평구)", $s.profile.city)
-                    field("주소 (도로명)", $s.profile.address1)
-                    field("상세주소 (동·호수)", $s.profile.address2)
+                    field("시/군/구", $s.profile.city, "예: 부평구", id: "city")
+                    field("도로명 주소", $s.profile.address1, "예: 산곡로 1", id: "address1")
+                    field("상세주소", $s.profile.address2, "예: 101동 1001호", id: "address2")
+                } header: {
+                    Text("배송지")
+                } footer: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        if !addressPreview.isEmpty {
+                            Text("입력된 주소: \(addressPreview)")
+                                .foregroundStyle(.primary)
+                                .accessibilityIdentifier("addressPreview")
+                        }
+                        Text("입력하는 즉시 저장돼요. 상세주소는 동·호수까지 적어 두면 체크아웃의 '아파트, 동, 호수' 칸에 들어가요.")
+                    }
                 }
 
                 Section {
-                    field("카드 번호", $s.card.number, .numberPad)
-                    field("카드 소유자 이름 (영문)", $s.card.name)
-                    HStack {
-                        field("MM", $s.card.month, .numberPad)
-                        field("YY", $s.card.year, .numberPad)
-                        SecureField("CVC", text: $s.card.cvc).keyboardType(.numberPad)
+                    field("카드 번호", $s.card.number, "0000 0000 0000 0000", .numberPad, id: "ccNumber")
+                    field("소유자 (영문)", $s.card.name, "HONG GILDONG", id: "ccName")
+                    field("유효기간 월", $s.card.month, "MM", .numberPad, id: "ccMonth")
+                    field("유효기간 연도", $s.card.year, "YY", .numberPad, id: "ccYear")
+                    LabeledContent("CVC") {
+                        SecureField("000", text: $s.card.cvc)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .accessibilityIdentifier("field.ccCsc")
                     }
                 } header: {
                     Text("카드")
@@ -195,9 +215,9 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    field("Supreme 홈", $s.supremeHome, .URL)
-                    field("Palace 홈", $s.palaceHome, .URL)
-                    field("카드 입력 허용 도메인 추가 (쉼표 구분)", $s.extraCardHosts, .URL)
+                    field("Supreme 홈", $s.supremeHome, Site.supreme.defaultHome, .URL, id: "supremeHome")
+                    field("Palace 홈", $s.palaceHome, Site.palace.defaultHome, .URL, id: "palaceHome")
+                    field("카드 허용 도메인", $s.extraCardHosts, "쉼표로 구분", .URL, id: "extraCardHosts")
                 } header: {
                     Text("사이트")
                 } footer: {
@@ -206,6 +226,14 @@ struct SettingsView: View {
             }
             .navigationTitle("드랍필 설정")
             .scrollDismissesKeyboard(.interactively)
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("완료") {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
+                }
+            }
         }
     }
 
@@ -231,10 +259,22 @@ struct SettingsView: View {
         }
     }
 
-    private func field(_ title: String, _ text: Binding<String>, _ kb: UIKeyboardType = .default) -> some View {
-        TextField(title, text: text)
-            .keyboardType(kb)
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled()
+    private var addressPreview: String {
+        let p = s.profile
+        return [p.postal, p.province, p.city, p.address1].filter { !$0.isEmpty }.joined(separator: " ")
+            + (p.address2.isEmpty ? "" : ", " + p.address2)
+    }
+
+    /// 왼쪽에 칸 이름이 항상 보이고, 오른쪽에 입력
+    private func field(_ title: String, _ text: Binding<String>, _ placeholder: String = "",
+                       _ kb: UIKeyboardType = .default, id: String) -> some View {
+        LabeledContent(title) {
+            TextField(placeholder, text: text)
+                .keyboardType(kb)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .multilineTextAlignment(.trailing)
+                .accessibilityIdentifier("field.\(id)")
+        }
     }
 }
