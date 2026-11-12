@@ -35,7 +35,8 @@ struct DropFillApp: App {
 struct ContentView: View {
     @StateObject private var supreme = BrowserModel(site: .supreme, autoload: !UITestMode.on)
     @StateObject private var palace = BrowserModel(site: .palace, autoload: !UITestMode.on)
-    @State private var tab = Site.supreme.rawValue
+    // 실행 인자 "-startTab palace" 로 시작 탭 지정 가능 (테스트용)
+    @State private var tab = UserDefaults.standard.string(forKey: "startTab") ?? Site.supreme.rawValue
 
     var body: some View {
         TabView(selection: $tab) {

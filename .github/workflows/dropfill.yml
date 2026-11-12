@@ -38,6 +38,18 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
+      - name: Check site addresses connect (Supreme KR / Palace KR)
+        run: |
+          mkdir -p out
+          for u in https://kr.supreme.com https://kr.palaceskateboards.com; do
+            set +e
+            code=$(curl -s -o /dev/null -L --max-time 20 -A "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1" -w "%{http_code} %{url_effective}" "$u")
+            rc=$?
+            set -e
+            echo "$u -> rc=$rc $code" | tee -a out/sites.txt
+            if [ $rc -eq 6 ]; then echo "::error::$u 주소를 찾을 수 없음 (DNS)"; exit 1; fi
+          done
+
       - name: Pick an iPhone simulator
         run: |
           UDID=$(xcrun simctl list devices available -j | python3 -c "
@@ -71,6 +83,10 @@ jobs:
           xcrun simctl launch "$UDID" com.hyuk.dropfill
           sleep 25
           xcrun simctl io "$UDID" screenshot out/launch.png || true
+          xcrun simctl terminate "$UDID" com.hyuk.dropfill || true
+          xcrun simctl launch "$UDID" com.hyuk.dropfill -startTab palace
+          sleep 25
+          xcrun simctl io "$UDID" screenshot out/launch-palace.png || true
           xcrun simctl spawn "$UDID" log show --last 2m --predicate 'process == "DropFill"' --style compact 2>/dev/null \
             | grep -iE "error|fault|crash" | head -n 40 > out/app-log.txt || true
 
@@ -98,26 +114,34 @@ jobs:
           done
           echo "ko.lproj:"; cat build/Build/Products/Release-iphoneos/DropFill.app/ko.lproj/InfoPlist.strings | iconv -f UTF-16 -t UTF-8 2>/dev/null || plutil -p build/Build/Products/Release-iphoneos/DropFill.app/ko.lproj/InfoPlist.strings
 
-      - name: Package IPA
+      - name: Package IPA (파일명에 버전)
         run: |
+          PL=build/Build/Products/Release-iphoneos/DropFill.app/Info.plist
+          VER=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$PL")
+          BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$PL")
+          IPA="DropFill-v${VER}.ipa"
+          echo "VER=$VER" >> $GITHUB_ENV
+          echo "BUILD=$BUILD" >> $GITHUB_ENV
+          echo "IPA=$IPA" >> $GITHUB_ENV
           mkdir -p Payload
           cp -R build/Build/Products/Release-iphoneos/DropFill.app Payload/
-          zip -qry DropFill.ipa Payload
+          zip -qry "$IPA" Payload
+          ls -la "$IPA"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: DropFill-ipa
-          path: DropFill.ipa
+          name: DropFill-v${{ env.VER }}
+          path: ${{ env.IPA }}
 
       - name: Publish to Releases (dropfill-latest)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete dropfill-latest --yes --cleanup-tag || true
-          gh release create dropfill-latest DropFill.ipa \
+          gh release create dropfill-latest "$IPA" \
             --target "$GITHUB_SHA" \
-            --title "드랍필 최신 빌드 ($(date -u -v+9H '+%Y-%m-%d %H:%M') KST)" \
-            --notes "dropfill 브랜치 커밋 ${GITHUB_SHA::7} 에서 빌드한 서명 없는 IPA입니다. Sideloadly로 설치하세요." \
+            --title "드랍필 v${VER} (빌드 ${BUILD}, $(date -u -v+9H '+%Y-%m-%d %H:%M') KST)" \
+            --notes "드랍필 v${VER} (빌드 ${BUILD}) — dropfill 브랜치 커밋 ${GITHUB_SHA::7} 에서 빌드한 서명 없는 IPA입니다. SideStore/Sideloadly로 설치하세요." \
             --prerelease --latest=false
 
       - name: Save results to dropfill-test-results branch

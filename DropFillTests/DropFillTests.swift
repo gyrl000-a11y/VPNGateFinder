@@ -108,7 +108,7 @@ final class DropFillTests: XCTestCase {
     func testContinueButtonClicked() async {
         let m = makeModel()
         let html = "<html><body>\(Self.checkoutFields)<button onclick='window.__cont=true'>배송으로 계속</button></body></html>"
-        load(m, html, "https://shop-kr.palaceskateboards.com/checkouts/abc?step=contact_information")
+        load(m, html, "https://kr.palaceskateboards.com/checkouts/abc?step=contact_information")
         let ok = await wait { (await self.js(m, "window.__cont === true") as? Bool) == true }
         XCTAssertTrue(ok, "continue not clicked")
     }
@@ -192,7 +192,7 @@ final class DropFillTests: XCTestCase {
 
     func testPalaceGetsKoreanAddress() async {
         let m = makeModel(.palace)
-        load(m, "<html><body>\(Self.checkoutFields)</body></html>", "https://shop-kr.palaceskateboards.com/checkouts/cn/ko")
+        load(m, "<html><body>\(Self.checkoutFields)</body></html>", "https://kr.palaceskateboards.com/checkouts/cn/ko")
         let ok = await wait { await self.value(m, "address1") == "산곡로 1" }
         XCTAssertTrue(ok, "Palace should get Korean address1")
         let last = await value(m, "lastName")

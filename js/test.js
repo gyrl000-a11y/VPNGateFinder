@@ -51,17 +51,17 @@ ${zone}
   check(t.msgs.some(m=>m.type==='ready'), 'ready message');
 
   // 2 legacy multi-step
-  t = mk(`<body>${fields}<button type="submit">배송으로 계속</button></body>`, 'https://shop-kr.palaceskateboards.com/checkouts/abc?step=contact_information', {enabled:true,autoCheckout:true,address:addr});
+  t = mk(`<body>${fields}<button type="submit">배송으로 계속</button></body>`, 'https://kr.palaceskateboards.com/checkouts/abc?step=contact_information', {enabled:true,autoCheckout:true,address:addr});
   t.w.eval(AUTOFILL); await sleep(2000);
   check(t.clicks.includes('배송으로 계속'), 'continue clicked');
 
   // 2b autoCheckout off → no continue click
-  t = mk(`<body>${fields}<button type="submit">배송으로 계속</button></body>`, 'https://shop-kr.palaceskateboards.com/checkouts/abc', {enabled:true,autoCheckout:false,address:addr});
+  t = mk(`<body>${fields}<button type="submit">배송으로 계속</button></body>`, 'https://kr.palaceskateboards.com/checkouts/abc', {enabled:true,autoCheckout:false,address:addr});
   t.w.eval(AUTOFILL); await sleep(2000);
   check(t.clicks.length===0, 'no continue when auto off');
 
   // 3 cart page
-  t = mk(`<body><button name="checkout">체크아웃</button><button>Shop Pay</button></body>`, 'https://shop-kr.palaceskateboards.com/cart', {enabled:true,autoCheckout:true,address:addr});
+  t = mk(`<body><button name="checkout">체크아웃</button><button>Shop Pay</button></body>`, 'https://kr.palaceskateboards.com/cart', {enabled:true,autoCheckout:true,address:addr});
   t.w.eval(AUTOFILL); await sleep(800);
   check(t.clicks.length===1 && t.clicks[0]==='체크아웃', 'cart checkout clicked once');
 

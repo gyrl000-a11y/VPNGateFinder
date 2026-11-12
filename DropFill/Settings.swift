@@ -96,7 +96,7 @@ enum Site: String, CaseIterable, Identifiable {
     var defaultHome: String {
         switch self {
         case .supreme: return "https://kr.supreme.com"
-        case .palace: return "https://shop-kr.palaceskateboards.com"
+        case .palace: return "https://kr.palaceskateboards.com"
         }
     }
 }
@@ -158,7 +158,17 @@ final class SettingsStore: ObservableObject {
         autofillOn = d.object(forKey: "autofillOn") as? Bool ?? true
         autoCheckoutOn = d.object(forKey: "autoCheckoutOn") as? Bool ?? true
         supremeHome = d.string(forKey: "home.supreme") ?? Site.supreme.defaultHome
-        palaceHome = d.string(forKey: "home.palace") ?? Site.palace.defaultHome
+        // 예전 기본값(잘못된 주소 shop-kr…)이 저장돼 있으면 올바른 주소로 바꿈
+        let savedPalace = d.string(forKey: "home.palace")
+        if let sp = savedPalace, sp.contains("shop-kr.palaceskateboards.com") {
+            d.removeObject(forKey: "home.palace")
+            palaceHome = Site.palace.defaultHome
+        } else {
+            palaceHome = savedPalace ?? Site.palace.defaultHome
+        }
+        if let lp = d.string(forKey: "last.palace"), lp.contains("shop-kr.palaceskateboards.com") {
+            d.removeObject(forKey: "last.palace")
+        }
         extraCardHosts = d.string(forKey: "extraCardHosts") ?? ""
         supremeLang = AddressLang(rawValue: d.string(forKey: "lang.supreme") ?? "") ?? .en
         palaceLang = AddressLang(rawValue: d.string(forKey: "lang.palace") ?? "") ?? .ko

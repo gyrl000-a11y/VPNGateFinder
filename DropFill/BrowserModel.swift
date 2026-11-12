@@ -262,7 +262,17 @@ extension BrowserModel: WKNavigationDelegate, WKUIDelegate {
         let e = error as NSError
         if e.domain == NSURLErrorDomain && e.code == NSURLErrorCancelled { return }
         if e.domain == "WebKitErrorDomain" && (e.code == 102 || e.code == 204) { return } // 다운로드·외부앱 전환
-        showToast("연결 실패 · ↻ 눌러 다시 시도", seconds: 3)
+        // 어느 주소에서 실패했는지 같이 보여 줌 (주소 오타·사이트 장애 구분용)
+        let host = (e.userInfo[NSURLErrorFailingURLErrorKey] as? URL)?.host
+            ?? (e.userInfo["NSErrorFailingURLStringKey"] as? String).flatMap { URL(string: $0)?.host }
+        let why: String
+        switch e.code {
+        case NSURLErrorCannotFindHost, NSURLErrorDNSLookupFailed: why = "주소를 찾을 수 없음"
+        case NSURLErrorNotConnectedToInternet: why = "인터넷 연결 없음"
+        case NSURLErrorTimedOut: why = "응답 시간 초과"
+        default: why = "연결 실패"
+        }
+        showToast("\(why)\(host.map { " (\($0))" } ?? "") · ↻ 다시 시도", seconds: 4)
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction,

@@ -24,7 +24,7 @@ enum UITestMode {
     }
 
     static func loadFixture(into m: BrowserModel) {
-        let host = m.site == .supreme ? "https://kr.supreme.com" : "https://shop-kr.palaceskateboards.com"
+        let host = m.site == .supreme ? "https://kr.supreme.com" : "https://kr.palaceskateboards.com"
         m.webView.loadHTMLString(fixture, baseURL: URL(string: host + "/checkouts/cn/uitest")!)
     }
 

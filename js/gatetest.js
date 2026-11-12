@@ -15,7 +15,7 @@ let ok = true; const check=(c,m)=>{console.log((c?'PASS ':'FAIL ')+m); if(!c) ok
 const k = t => t.msgs.map(m=>m.kind).join(',');
 check(k(run('<h1>Box Logo Tee</h1>', 'https://kr.supreme.com/products/x'))==='none', 'product page → none');
 check(k(run('<h1>You are now in line</h1>', 'https://kr-supreme.queue-it.net/?c=x&e=y'))==='queue', 'queue-it host');
-check(k(run('<p>x</p>', 'https://shop-kr.palaceskateboards.com/throttle/queue'))==='queue', 'shopify throttle queue path');
+check(k(run('<p>x</p>', 'https://kr.palaceskateboards.com/throttle/queue'))==='queue', 'shopify throttle queue path');
 check(k(run('<title>접속 대기 안내</title><h2>현재 대기열에 계십니다</h2>', 'https://kr.supreme.com/'))==='queue', 'korean queue text');
 check(k(run('<iframe src="https://newassets.hcaptcha.com/captcha/v1/x"></iframe>', 'https://kr.supreme.com/checkouts/cn/x'))==='captcha', 'hcaptcha iframe');
 check(k(run('<iframe data-size="0" src="https://www.google.com/recaptcha/api2/anchor?size=invisible"></iframe><h1>상품</h1>', 'https://kr.supreme.com/'))==='none', 'invisible recaptcha ignored');
