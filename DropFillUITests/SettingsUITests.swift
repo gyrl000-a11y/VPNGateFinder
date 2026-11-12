@@ -56,6 +56,14 @@ final class SettingsUITests: XCTestCase {
         }
     }
 
+    /// 한글은 한 번에 빠르게 치면 첫 글자만 남는 경우가 있어 한 글자씩 입력
+    private func typeSlowly(_ text: String, into el: XCUIElement) {
+        for ch in text {
+            el.typeText(String(ch))
+            usleep(120_000)
+        }
+    }
+
     private func dismissKeyboard(_ app: XCUIApplication) {
         let done = app.buttons["완료"].firstMatch
         if done.exists { done.tap() }
@@ -73,7 +81,8 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(scrollFind(field, in: app, "settings-field"), "설정에 상세주소 칸이 없음")
         XCTAssertTrue(app.staticTexts["상세주소"].exists, "상세주소 칸 이름이 안 보임")
         field.tap()
-        field.typeText(detail)
+        typeSlowly(detail, into: field)
+        if (field.value as? String) != detail { dumpHierarchy(app, "typing") }
         XCTAssertEqual(field.value as? String, detail)
         dismissKeyboard(app)
         let preview = app.staticTexts["addressPreview"]

@@ -293,9 +293,9 @@ final class DropFillTests: XCTestCase {
 
     // 14. 진단 모드: 모르는 사이트라도 칸 목록을 수집 (입력값은 제외)
     func testDiagnostics() async {
+        let m = makeModel(.supreme)          // makeModel이 설정을 초기화하므로 그 뒤에 켬
         SettingsStore.shared.diagMode = true
         defer { SettingsStore.shared.diagMode = false }
-        let m = makeModel(.supreme)
         load(m, "<html><body><label for='x'>생년월일</label><input id='x' name='bd' value='secret'><button>결제하기</button></body></html>",
              "https://pay.example.com/form")
         let ok = await wait { !m.diag.isEmpty }
