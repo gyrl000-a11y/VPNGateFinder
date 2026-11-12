@@ -103,10 +103,6 @@ final class DropFillTests: XCTestCase {
         }
         XCTAssertTrue(marked, "pay button not highlighted")
         try? await Task.sleep(nanoseconds: 1_500_000_000)
-        let scrolled = await wait { ((await self.js(m, "window.scrollY") as? Double) ?? 0) > 1000 }
-        XCTAssertTrue(scrolled, "should scroll down to the pay button after autofill")
-        let marked = ((await js(m, "document.getElementById('pay').style.outline") as? String) ?? "").contains("3px")
-        XCTAssertTrue(marked, "'process payment' should be highlighted")
         let paid = await js(m, "window.__paid === true") as? Bool
         XCTAssertEqual(paid, false, "pay button must never be clicked")
     }
@@ -355,6 +351,10 @@ final class DropFillTests: XCTestCase {
         let pin = await js(m, "document.getElementById('pin').value") as? String
         XCTAssertEqual(dob, "1990-01-01")
         XCTAssertEqual(pin, "12")
+        let scrolled = await wait { ((await self.js(m, "window.scrollY") as? Double) ?? 0) > 1000 }
+        XCTAssertTrue(scrolled, "should scroll down to the pay button after autofill")
+        let payMarked = ((await js(m, "document.getElementById('pay').style.outline") as? String) ?? "").contains("3px")
+        XCTAssertTrue(payMarked, "'process payment' should be highlighted")
         let paid = await js(m, "window.__paid === true") as? Bool
         XCTAssertEqual(paid, false, "pay button must never be clicked")
     }
